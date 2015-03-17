@@ -49,13 +49,17 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
    def prompt(self):
          return "Plotting mesh..." #I don't think there's other stuff we need to know
    
-   def handle(self): #No selection to pass in?
+   def handle(self, selection): #No selection to pass in?
       #use .getCellValues(mesh, cellID, refPoints) 
       #refPoints in the form [[-1,0],[1,0]...] 
       #returns a tuple (value -list of floats, physical points)
       pass
    
 class refine:
+   def prompt(self):
+      pass
+   
+   def handle(self, selection): 
       pass
 
 class load:
@@ -80,6 +84,7 @@ class save:
       file = open(filename, 'wb')
       pickle.dump(form, file)
       file.close()
+      print "Saved Successfully!"
 
 
       
