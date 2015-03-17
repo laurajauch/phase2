@@ -24,7 +24,7 @@ class initial:
          return solver_type()
       elif(selection == "load"):
          print ("load not yet implemented")
-         return self #this should be whatever state handles loading
+         return load() #this should be whatever state handles loading
       else:
          print ("Input not understood")
          return self
