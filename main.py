@@ -46,7 +46,28 @@ class solver_type:
    
 
 
+class load:
 
+   def prompt(self):
+      return "Filename: \n> "
+
+   def handle(self, selection):
+      filename = selection
+      file = open(filename, 'rb')
+      form = pickle.load(file)
+      file.close()
+      #set everything to what was read from file
+
+class save:
+
+   def prompt(self):
+      return "Name a file to save to: \n> "
+
+   def handle(self, selection):
+      filename = selection
+      file = open(filename, 'wb')
+      pickle.dump(form, file)
+      file.close()
 
 
       
