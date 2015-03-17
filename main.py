@@ -6,11 +6,11 @@ class main:
       self.state = initial()
       selection = ""
       while selection != "exit":
-         if isinstance(self.state, int):
+         if isinstance(self.state, int): #if state is a number, quit
             break
          selection = raw_input(self.state.prompt())
          if(selection != "exit"):
-            self.state = self.state.handle(selection)
+            self.state = self.state.handle(selection.lower())
       print ("Exiting")
 
 
@@ -21,7 +21,7 @@ class initial:
 
    def handle(self, selection):
       if(selection == "create"):
-         return solver()
+         return solver_type()
       elif(selection == "load"):
          print ("load not yet implemented")
          return self #this should be whatever state handles loading
@@ -29,13 +29,20 @@ class initial:
          print ("Input not understood")
          return self
 
-class exiter:
+class solver_type:
 
    def prompt(self):
-      return ""
+      return "Would you like to solve Stokes or Navier-Stokes? \n> "
 
    def handle(self, selection):
-      return 0
+      #determines what type of problem
+      if(selection == "stokes"):
+         return solver(False)
+      elif(selection == "navier-stokes"):
+         return solver(True)
+      else:
+         print ("Input not understood")
+         return self
    
 
 
