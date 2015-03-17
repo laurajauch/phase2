@@ -38,13 +38,25 @@ class solver_type:
       #determines what type of problem
       if(selection == "stokes"):
          return solver(False)
-      elif(selection == "navier-stokes"):
+      elif(selection == "navier-stokes"): # I saw something in the slides from last class that NS would be steady state only...
          return solver(True)
       else:
          print ("Input not understood")
          return self
    
-
+class plot: #So to get the info to plot, refine we pass in the form object from above??
+   
+   def prompt(self):
+         return "Plotting mesh..." #I don't think there's other stuff we need to know
+   
+   def handle(self): #No selection to pass in?
+      #use .getCellValues(mesh, cellID, refPoints) 
+      #refPoints in the form [[-1,0],[1,0]...] 
+      #returns a tuple (value -list of floats, physical points)
+      pass
+   
+class refine:
+      pass
 
 class load:
 
