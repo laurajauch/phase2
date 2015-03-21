@@ -38,30 +38,34 @@ class solver_type:
       #determines what type of problem
       if(selection == "stokes"):
          return solver(False)
-      elif(selection == "navier-stokes"): # I believe that NS is be steady state only...
+      elif(selection == "navier-stokes"): # I believe that NS is steady state only...
          return solver(True)
       else:
          print ("Input not understood")
          return self
    
-class plot: #So to get the info to plot, refine we pass in the form object from above...?
-   
-   def prompt(self):
-         return "What would you like to plot (u1, u2, p, stream function, mesh or error)? \n>"
-   
-   def handle(self, selection): 
-      print "Plotting %s..." % selection
-      #use .getCellValues(mesh, cellID, refPoints) 
-      #refPoints in the form [[-1,0],[1,0]...] 
-      #returns a tuple (value -list of floats, physical points)
-      pass
-   
 class refine:
    def prompt(self):
       pass
    
-   def handle(self, selection): 
-      pass
+   def handle(self, selection):
+      energyError = form.solution.energyErrorTotal()
+      elementCount = mesh.numActiveElements()
+      globalDofCount = mesh.globalDofs()
+
+      refinementNumber = 0
+      threshold = ?
+      while energyError > threshold and refinement <= 8:
+         form.hRefine()
+         form.solve()
+         energyError = form.solution().energyErrorTotal()
+         refinementNumber += 1
+         elementcount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+
+      
 
 class load:
 
