@@ -1,5 +1,6 @@
 from PyCamellia import *
 from main import *
+from plot import *
 
 
 
@@ -9,7 +10,7 @@ class solver:
       self.s_type = s_type
 
    def prompt(self):
-      return "Transient or steady state? \n> "
+      return "Transient or Steady State? \n> "
 
    def handle(self, selection):
       #determines what type of problem
@@ -31,9 +32,6 @@ class solver:
          if re == "exit":
             return 0 #this causes the macro parser to skip all steps and quit
 
-      
-               
-
       spaceDim = 2
       x0 = [0.,0.]
 
@@ -45,20 +43,47 @@ class solver:
       response = self.dims_num("How many elements are in the mesh?  (E.g., 3 x 5) \n> ")
       if response == "exit": 
          return 0
-      numElements = [int(y[0]), int(y[1])]
-
-      meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+      #numElements = [int(y[0]), int(y[1])]
+      numElements = [int(response[0]), int(response[1])]
      
+      meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+
+         
+
+
       polyOrder = self.re_num("What polynomial order? (1 to 9) \n> ")
       if polyOrder == "exit": 
          return 0
       
       delta_k = 1
       
-      form = NavierStokesVGPFormulation(meshTopo,Re,polyOrder,delta_k)
-
+      form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
+ 
       form.addZeroMeanPressureCondition()
-            
+
+      
+      #boundary/inflow conditions -- nasty equation parsing.
+
+      #does this belong stuff here -> Also, we're getting a seg fault right now.
+      #energyError = form.solution().energyErrorTotal()
+      #mesh = form.solution().mesh()
+      #elementCount = mesh.numActiveElements()
+      #globalDofCount = mesh.numGlobalDofs()
+      #print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+      
+
+      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
+      if nextAction == 'plot':
+         return plot()
+      if nextAction == 'refine':
+         return refine()
+      if nextAction == 'save':
+         return save()
+      if nextAction == 'load':
+         return load()
+      if nextAction == 'exit':
+         return 0
 
 
    def re_num(self, prompt):
@@ -85,9 +110,9 @@ class solver:
             temp = response.split('x') #splits the string in two and deletes the x
             test = [float(temp[0]), float(temp[1])] #tests to make sure it is two numbers
             step = False
-         except (ValueError):
+         except (ValueError, IndexError):
             print ("Input not understood")
-	    return "exit"
+	    return "exit"  #Do we really want to exit here? 
       return temp
 
 
