@@ -48,7 +48,9 @@ class refine:
    def prompt(self):
       pass
    
-   def handle(self, selection):
+   def handle(self, selection): 
+
+      # we need the form. Also I don't actually know what this code does.
       energyError = form.solution.energyErrorTotal()
       elementCount = mesh.numActiveElements()
       globalDofCount = mesh.globalDofs()
@@ -57,7 +59,7 @@ class refine:
       threshold = ?
       while energyError > threshold and refinement <= 8:
          form.hRefine()
-         form.solve()
+         form.solve() 
          energyError = form.solution().energyErrorTotal()
          refinementNumber += 1
          elementcount = mesh.numActiveElements()
