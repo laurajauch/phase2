@@ -46,12 +46,12 @@ class solver_type:
          return self
    
 class refine:
-   def prompt(self):
+   def prompt(self, form):
+      self.form = form
       return "Would you like p or h-auto refinement? \n>"
    
    def handle(self, selection): 
       # we need the form. Also I don't actually know what this code does.
-      form = ???
       energyError = form.solution().energyErrorTotal()
       mesh = form.solution().mesh()
       elementCount = mesh.numActiveElements()
@@ -97,7 +97,8 @@ class load:
 
 class save:
 
-   def prompt(self):
+   def prompt(self, form):
+      self.form = form
       return "Name a file to save to: \n> "
 
    def handle(self, selection):
