@@ -70,11 +70,11 @@ class solver:
 
       nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       if nextAction == 'plot':
-         return plot()
+         return plot(form)
       if nextAction == 'refine':
-         return refine()
+         return refine(form)
       if nextAction == 'save':
-         return save()
+         return save(form)
       if nextAction == 'load':
          return load()
       if nextAction == 'exit':
