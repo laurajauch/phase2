@@ -2,8 +2,6 @@ from PyCamellia import *
 from main import *
 from plot import *
 
-
-
 class solver:
 
    def __init__(self, s_type):
@@ -48,16 +46,13 @@ class solver:
      
       meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 
-         
-
-
       polyOrder = self.re_num("What polynomial order? (1 to 9) \n> ")
       if polyOrder == "exit": 
          return 0
       
       delta_k = 1
       
-      form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
+      form = Form(NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k))
  
       form.addZeroMeanPressureCondition()
 
@@ -116,10 +111,15 @@ class solver:
       return temp
 
 
-         
-      
       
 
+#make this a singleton
+class Form(object):
 
+   
+   def __init__(self, formIn):
+      self.form = formIn   #Not the way we should do this.
 
-
+   def get(self):
+      return form
+   

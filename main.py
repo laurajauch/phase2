@@ -12,8 +12,8 @@ class main:  #this class is partially contained in the main method below
          selection = raw_input(self.state.prompt())
          if(selection != "exit"):
             self.state = self.state.handle(selection.lower())
+            
       print ("Exiting")
-
 
 class initial:
 
@@ -51,6 +51,7 @@ class refine:
    
    def handle(self, selection): 
       # we need the form. Also I don't actually know what this code does.
+      form = ???
       energyError = form.solution().energyErrorTotal()
       mesh = form.solution().mesh()
       elementCount = mesh.numActiveElements()
