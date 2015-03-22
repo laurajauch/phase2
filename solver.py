@@ -12,11 +12,6 @@ class solver:
       return "Transient or Steady State? \n> "
 
    def handle(self, selection):
-
-      #form = Form(selection, s_type)
-      #realForm = form.makeForm()
-
-
       #determines what type of problem
       if(selection == "steady state"):
          self.f_type = False
@@ -64,10 +59,45 @@ class solver:
 
       Form.Instance().setForm(form)
       
-      #boundary/inflow conditions -- nasty equation parsing.
+      #boundary/inflow conditions
+      inflowNum = raw_input("How many inflow conditions? (Ex. 2) \n>")
+      i = 0
+      if inflowNum == "exit":
+         return 0
+      try:
+         while i < int(inflowNum):
+            inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>")
+            #parse inflow. NASTY.
+            #save this somewhere so we can build walls
+            i += 1
+      except(ValueError):
+         print("Input not understood")
+         return self
+         
 
-      #does this belong stuff here -> Also, we're getting a seg fault right now.
-      #energyError = form.solution().energyErrorTotal()
+      #outflow conditions
+      outflowNum = raw_input("How many outflow conditions? (Ex. 2) \n>")
+      i = 0
+      if outflowNum == "exit":
+         return 0
+      try:
+         while i < int(outflowNum):
+            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>")
+            #parse inflow. NASTY.
+            #save this somewhere so we can build walls
+            i += 1
+      except(ValueError):
+         print("Input not understood")
+         return self
+
+
+      #Set walls. Whatever isn't inflow or outflow
+      
+
+
+      print "Solving..."
+      #does this belong stuff here?
+      #energyError = form.solution().energyErrorTotal()  -----> SEG FAULT
       #mesh = form.solution().mesh()
       #elementCount = mesh.numActiveElements()
       #globalDofCount = mesh.numGlobalDofs()
@@ -76,6 +106,7 @@ class solver:
       
 
       nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
+      #change state to next action
       if nextAction == 'plot':
          return plot()
       if nextAction == 'refine':

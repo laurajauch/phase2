@@ -1,6 +1,7 @@
 from solver import *
 from plot import *
 from Form import *
+import cPickle as pickle
 
 class main:  #this class is partially contained in the main method below
 
@@ -54,7 +55,7 @@ class refine:
    def handle(self, selection): 
       # we need the form. Also I don't actually know what this code does.
       print "SF0"
-      energyError = self.form.solution().energyErrorTotal() #SEG FAULT
+      energyError = self.form.solution().energyErrorTotal() #SEG FAULT - b/c no boundary conditions??
       print "SF1"
       mesh = self.form.solution().mesh()
       print "SF2"
@@ -99,6 +100,20 @@ class load:
       form = pickle.load(file)
       file.close()
       Form.Instance.setForm(form)
+      
+      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
+      #change state to next action
+      if nextAction == 'plot':
+         return plot()
+      if nextAction == 'refine':
+         return refine()
+      if nextAction == 'save':
+         return save()
+      if nextAction == 'load':
+         return load()
+      if nextAction == 'exit':
+         return 0
+      
 
 class save:
 
