@@ -1,6 +1,7 @@
 from PyCamellia import *
 from main import *
 from plot import *
+from Form import *
 
 class solver:
 
@@ -11,6 +12,11 @@ class solver:
       return "Transient or Steady State? \n> "
 
    def handle(self, selection):
+
+      #form = Form(selection, s_type)
+      #realForm = form.makeForm()
+
+
       #determines what type of problem
       if(selection == "steady state"):
          self.f_type = False
@@ -52,10 +58,11 @@ class solver:
       
       delta_k = 1
       
-      form = Form(NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k))
+      form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
  
-      form.addZeroMeanPressureCondition()
+      form.addZeroMeanPressureCondition() 
 
+      Form.Instance().setForm(form)
       
       #boundary/inflow conditions -- nasty equation parsing.
 
@@ -70,11 +77,11 @@ class solver:
 
       nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       if nextAction == 'plot':
-         return plot(form)
+         return plot()
       if nextAction == 'refine':
-         return refine(form)
+         return refine()
       if nextAction == 'save':
-         return save(form)
+         return save()
       if nextAction == 'load':
          return load()
       if nextAction == 'exit':
@@ -109,17 +116,3 @@ class solver:
             print ("Input not understood")
 	    return "exit"  #Do we really want to exit here? 
       return temp
-
-
-      
-
-#make this a singleton
-class Form(object):
-
-   
-   def __init__(self, formIn):
-      self.form = formIn   #Not the way we should do this.
-
-   def get(self):
-      return form
-   

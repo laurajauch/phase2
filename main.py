@@ -1,5 +1,6 @@
 from solver import *
 from plot import *
+from Form import *
 
 class main:  #this class is partially contained in the main method below
 
@@ -46,15 +47,19 @@ class solver_type:
          return self
    
 class refine:
-   def prompt(self, form):
-      self.form = form
+   def prompt(self):
+      self.form = Form.Instance().get()
       return "Would you like p or h-auto refinement? \n>"
    
    def handle(self, selection): 
       # we need the form. Also I don't actually know what this code does.
-      energyError = form.solution().energyErrorTotal()
-      mesh = form.solution().mesh()
+      print "SF0"
+      energyError = self.form.solution().energyErrorTotal() #SEG FAULT
+      print "SF1"
+      mesh = self.form.solution().mesh()
+      print "SF2"
       elementCount = mesh.numActiveElements()
+      print "SF3"
       globalDofCount = mesh.globalDofs()
       refinementNumber = 0
 
@@ -93,18 +98,17 @@ class load:
       file = open(filename, 'rb')
       form = pickle.load(file)
       file.close()
-      #set everything to what was read from file
+      Form.Instance.setForm(form)
 
 class save:
 
-   def prompt(self, form):
-      self.form = form
+   def prompt(self):
       return "Name a file to save to: \n> "
 
    def handle(self, selection):
       filename = selection
       file = open(filename, 'wb')
-      pickle.dump(form, file)
+      pickle.dump(Form.Instance().get(), file)
       file.close()
       print "Saved Successfully!"
 
