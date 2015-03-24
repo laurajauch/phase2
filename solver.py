@@ -82,7 +82,7 @@ class solver:
          return 0
       try:
          while i < int(outflowNum):
-            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>")
+            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>") #Now of the form x<0, y= 4??
             #parse inflow. NASTY.
             #save this somewhere so we can build walls
             i += 1
@@ -93,7 +93,7 @@ class solver:
 
       #Set walls. Whatever isn't inflow or outflow
       
-
+      form.solve()
 
       print "Solving..."
       #does this belong stuff here?

@@ -54,13 +54,9 @@ class refine:
    
    def handle(self, selection): 
       # we need the form. Also I don't actually know what this code does.
-      print "SF0"
       energyError = self.form.solution().energyErrorTotal() #SEG FAULT - b/c no boundary conditions??
-      print "SF1"
       mesh = self.form.solution().mesh()
-      print "SF2"
       elementCount = mesh.numActiveElements()
-      print "SF3"
       globalDofCount = mesh.globalDofs()
       refinementNumber = 0
 
@@ -96,9 +92,18 @@ class load:
 
    def handle(self, selection):
       filename = selection
-      file = open(filename, 'rb')
-      form = pickle.load(file)
-      file.close()
+      #parse through poly order, type and RE
+      
+      #form = ''
+      type = ''
+      if type == 'Stokes':
+         #form.initializeSolution(selection, polyOrder)
+
+      if type == 'Navier-Stokes':
+         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)
+
+
+
       Form.Instance.setForm(form)
       
       nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
@@ -122,9 +127,8 @@ class save:
 
    def handle(self, selection):
       filename = selection
-      file = open(filename, 'wb')
-      pickle.dump(Form.Instance().get(), file)
-      file.close()
+      file.save(selection)
+      #save RE and polyOrder and problem type
       print "Saved Successfully!"
 
 def start():
