@@ -5,7 +5,10 @@ from Singleton import *
 class Form(object):
    #self.form = None
    def __init__(self):
-       pass
+       self.type = ''
+       self.polyOrder = ''
+       self.re = ''
+       
 
    def setForm(self, form):
      self.form = form
