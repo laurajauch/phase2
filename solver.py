@@ -67,6 +67,8 @@ class solver:
       try:
          while i < int(inflowNum):
             inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>")
+            #inflow should ask for what region of form x =9, y>6 and then ask for the velocity to apply to that region which will 
+            #be a nasty math equation
             #parse inflow. NASTY.
             #save this somewhere so we can build walls
             i += 1
