@@ -60,19 +60,18 @@ class refine:
       refinementNumber = 0
 
       if selection == 'h-auto':
-     #while energyError > threshold and refinement <= 8: This guard needs to be updated
+         while energyError > threshold and refinement <= 8: #This guard needs to be updated
          #Dr. Roberts said the interior of this loop should do what we want for h-auto
-         #form.hRefine() for each cellID - does hRefine take an argument?
-         #form.solve() 
-         #energyError = form.solution().energyErrorTotal()
-         #refinementNumber += 1
-         #elementcount = mesh.numActiveElements()
-         #globalDofCount = mesh.numGlobalDofs()
-         #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-         #print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount)       
-         pass
-
-      if selection == 'p':
+            form.hRefine() #for each cellID #- does hRefine take an argument?
+            form.solve() 
+            energyError = form.solution().energyErrorTotal()
+            refinementNumber += 1
+            elementcount = mesh.numActiveElements()
+            globalDofCount = mesh.numGlobalDofs()
+            print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+            print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))       
+                 
+      elif selection == 'p':
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
@@ -80,7 +79,7 @@ class refine:
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split() #convert input to list
-         #feed list through hRefine() and/or pRefine()...?
+         #feed list through hRefine() and/or pRefine()...
        
 
 
@@ -93,13 +92,16 @@ class load:
       filename = selection
       #parse through poly order, type and Re
       
-      """#form = ''
+      #form = ''
       type = ''
       if type == 'Stokes':
          #form.initializeSolution(selection, polyOrder)
+         pass
 
       if type == 'Navier-Stokes':
-         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)"""
+
+         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)
+         pass
 
 
 
