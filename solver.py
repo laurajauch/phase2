@@ -57,7 +57,7 @@ class solver:
  
       form.addZeroMeanPressureCondition() 
 
-      Form.Instance().setForm(form)
+
       
       #boundary/inflow conditions
       inflowNum = raw_input("How many inflow conditions? (Ex. 2) \n>")
@@ -66,9 +66,33 @@ class solver:
          return 0
       try:
          while i < int(inflowNum):
-            inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>")
-            #parse inflow. NASTY.
-            #save this somewhere so we can build walls
+            inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n>")
+            inf = [z.strip() for z in inflow.split(',')]
+            #if len(inflow[0]) == 3:
+            spFils = self.getSF(inf[0])
+            del inf[0]
+            #else:
+              # raise ValueError 
+         
+            for x in inf:
+               #if len(i) == 3:
+               spFils = spFils and self.getSF(x) 
+               #else:
+                #  raise ValueError
+            
+            
+                  
+            inflowxVel = raw_input("What is the x component of the velocity? \n>")
+            #parse
+            xVel = Function.constant(0)
+
+            inflowyVel = raw_input("What is the y component of the velocity? \n>")
+            #parse
+            yVel = Function.constant(0)
+
+            velocity = Function.vectorize(xVel,yVel)
+            form.addInflowCondition(spFils, velocity) 
+            form.addWallCondition(SpatialFilter.negatedFilter(spFils))
             i += 1
       except(ValueError):
          print("Input not understood")
@@ -82,18 +106,32 @@ class solver:
          return 0
       try:
          while i < int(outflowNum):
-            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. -3*(3+5)-2) \n>") #Now of the form x<0, y= 4??
-            #parse inflow. NASTY.
-            #save this somewhere so we can build walls
+            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2 \n>") 
+            inf = [z.strip() for z in inflow.split(',')]
+            
+            if len(inf[0]) == 3:
+               spFilsO = getSF(inf[0])
+               del inf[0]
+            else:
+               raise ValueError 
+               return 0
+            for x in inf:
+               if len(x) == 3:
+                  spFilsO = spFilsO and getSF(x) 
+               else:
+                  raise ValueError
+            
+            form.addOutflowCondition(spFilsO)
+            form.addWallCondition(SpacialFilter.negatedFilter(spFils0))
             i += 1
       except(ValueError):
          print("Input not understood")
          return self
 
 
-      #Set walls. Whatever isn't inflow or outflow
+      #Build walls. Whatever isn't inflow or outflow
       
-      form.solve()
+      #form.solve()
 
       print "Solving..."
       #does this belong stuff here?
@@ -104,19 +142,23 @@ class solver:
       #print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
       #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
       
-
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
+      Form.Instance.setForm(form)
+      nextAction = ''
+      while nextAction != 'exit':
+         nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       #change state to next action
-      if nextAction == 'plot':
-         return plot()
-      if nextAction == 'refine':
-         return refine()
-      if nextAction == 'save':
-         return save()
-      if nextAction == 'load':
-         return load()
-      if nextAction == 'exit':
-         return 0
+         if nextAction == 'plot':
+            return plot()
+         elif nextAction == 'refine':
+            return refine()
+         elif nextAction == 'save':
+            return save()
+         elif nextAction == 'load':
+            return load()
+         else:
+            print "Input not understood."
+
+      return 0 #exit the program
 
 
    def re_num(self, prompt):
@@ -147,3 +189,41 @@ class solver:
             print ("Input not understood")
 	    return "exit"  #Do we really want to exit here? 
       return temp
+
+
+   def getSF(self, arg):
+      #arg = [x.strip() for x in args.split()]
+      index = 0
+      arg = list(arg)
+      #print args
+      print arg
+      for x in arg:
+         #x.strip()
+         if x == ' ':
+            del arg[index]
+         else:
+            index += 1
+      
+   
+      op = arg[1]
+      xory = arg[0]
+      try:
+         if xory == 'x':
+         
+            if op == '=':
+               return SpatialFilter.matchingX(float(arg[2]))
+            if op == '>':
+               return SpatialFilter.greaterThanX(float(arg[2]))
+            if op == '<':
+               return SpatialFilter.lessThanX(float(arg[2]))
+
+         elif xory == 'y':
+            if op == '=':
+               return SpatialFilter.matchingY(float(arg[2]))
+            if op == '>':
+               return SpatialFilter.greaterThanY(float(arg[2]))
+            if op == '<':
+               return SpatialFilter.lessThanY(float(arg[2]))
+      except: #(ValueError, TypeError):
+         #print "Input not understood"
+         pass
