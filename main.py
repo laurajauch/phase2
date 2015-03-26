@@ -26,7 +26,6 @@ class initial:
       if(selection == "create"):
          return solver_type()
       elif(selection == "load"):
-         print ("load not yet implemented")
          return load() #this should be whatever state handles loading
       else:
          print ("Input not understood")
@@ -92,15 +91,15 @@ class load:
 
    def handle(self, selection):
       filename = selection
-      #parse through poly order, type and RE
+      #parse through poly order, type and Re
       
-      #form = ''
+      """#form = ''
       type = ''
       if type == 'Stokes':
          #form.initializeSolution(selection, polyOrder)
 
       if type == 'Navier-Stokes':
-         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)
+         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)"""
 
 
 
@@ -110,15 +109,17 @@ class load:
       #change state to next action
       if nextAction == 'plot':
          return plot()
-      if nextAction == 'refine':
+      elif nextAction == 'refine':
          return refine()
-      if nextAction == 'save':
+      elif nextAction == 'save':
          return save()
-      if nextAction == 'load':
+      elif nextAction == 'load':
          return load()
-      if nextAction == 'exit':
+      elif nextAction == 'exit':
          return 0
-      
+      else:
+         print "Input not understood"
+         return 0
 
 class save:
 
