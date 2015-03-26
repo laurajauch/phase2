@@ -68,14 +68,15 @@ class solver:
          while i < int(inflowNum):
             inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n>")
             inf = [z.strip() for z in inflow.split(',')]
+            
             #if len(inflow[0]) == 3:
             spFils = self.getSF(inf[0])
             del inf[0]
-            #else:
-              # raise ValueError 
+         #   else:
+          #     raise ValueError 
          
             for x in inf:
-               #if len(i) == 3:
+           #    if len(x) == 3:
                spFils = spFils and self.getSF(x) 
                #else:
                 #  raise ValueError
@@ -89,12 +90,12 @@ class solver:
             inflowyVel = raw_input("What is the y component of the velocity? \n>")
             #parse
             yVel = Function.constant(0)
-
+   
             velocity = Function.vectorize(xVel,yVel)
-            form.addInflowCondition(spFils, velocity) 
+            form.addInflowCondition(spFils, velocity)
             form.addWallCondition(SpatialFilter.negatedFilter(spFils))
             i += 1
-      except(ValueError):
+      except: #(ValueError):
          print("Input not understood")
          return self
          
@@ -109,40 +110,37 @@ class solver:
             outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2 \n>") 
             inf = [z.strip() for z in inflow.split(',')]
             
-            if len(inf[0]) == 3:
-               spFilsO = getSF(inf[0])
-               del inf[0]
-            else:
-               raise ValueError 
-               return 0
+            #if len(inf[0]) == 3:
+            spFilsO = self.getSF(inf[0])
+            del inf[0]
+            #else:
+             #  raise ValueError 
+              # return 0
             for x in inf:
-               if len(x) == 3:
-                  spFilsO = spFilsO and getSF(x) 
-               else:
-                  raise ValueError
+             #  if len(x) == 3:
+               spFilsO = spFilsO and self.getSF(x) 
+               #else:
+                #  raise ValueError
             
             form.addOutflowCondition(spFilsO)
-            form.addWallCondition(SpacialFilter.negatedFilter(spFils0))
+            form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
             i += 1
       except(ValueError):
          print("Input not understood")
          return self
 
-
-      #Build walls. Whatever isn't inflow or outflow
-      
-      #form.solve()
-
       print "Solving..."
-      #does this belong stuff here?
-      #energyError = form.solution().energyErrorTotal()  -----> SEG FAULT
+      
+      form.solve()  #attribute error??
+
+      #energyError = form.solution().energyErrorTotal()  #-----> SEG FAULT
       #mesh = form.solution().mesh()
       #elementCount = mesh.numActiveElements()
       #globalDofCount = mesh.numGlobalDofs()
       #print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
       #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
       
-      Form.Instance.setForm(form)
+      #Form.Instance.setForm(form)
       nextAction = ''
       while nextAction != 'exit':
          nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
@@ -195,10 +193,7 @@ class solver:
       #arg = [x.strip() for x in args.split()]
       index = 0
       arg = list(arg)
-      #print args
-      print arg
       for x in arg:
-         #x.strip()
          if x == ' ':
             del arg[index]
          else:
