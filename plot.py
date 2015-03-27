@@ -77,5 +77,5 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
       if selection == 'error':
          pass
 
-#returns a tuple (values -list of floats, physical points)
-return transition()
+      #returns a tuple (values -list of floats, physical points)
+      return transition()
