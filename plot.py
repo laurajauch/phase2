@@ -27,36 +27,37 @@ class plot:
             (values, points) = u1_soln.getCellValues(mesh, cellID,refCellVertexPoints)
             pLen = len(points) #keep track of how many points go with each avg value
             colVal = 0
+            
             for val in values:
                colVal += val
+            
             for pair in points:
                meshX.append(pair[0]) #meshX will have all x values for this particular cell
                meshY.append(pair[1]) #same with meshY
+            
             avgCols.append(colVal / len(values)) #colVal is the average of all z values for this cell
          
          colTrack = 0
+         meshX = sorted(list(set(meshX))) #sort and remove duplicates 
+         meshY = sorted(list(set(meshY))) #sort and remove duplicates
          print("meshX: " + str(meshX)) #DEBUGGIN ---- IGNORE
          print("meshY: " + str(meshY)) #DUBEGGIN ---- DONT WORRY ABOUT IT
          print("pLen: " + str(pLen))
-         for i in range(0, (len(meshY)/pLen)-pLen, pLen):
+         for i in range(0, (len(meshY)-1)):
             print("i: " + str(i))
             plotCols.append([]) #add another 'y' to the 2D array; extend it down another row
-            for j in range(0, (len(meshX)/pLen)-pLen, pLen): #fills up each column
+            for j in range(0, (len(meshX)-1)): #fills up each column
                print("j: " + str(j))
                print("colTrack: " + str(colTrack))
                print("avgCols length: " + str(len(avgCols)))
-               plotCols[i/pLen].append(avgCols[colTrack])
+               plotCols[i].append(avgCols[colTrack])
                colTrack += 1
          
-         
-
-         meshX = sorted(list(set(meshX))) #sort and remove duplicates 
-         meshY = sorted(list(set(meshY))) #sort and remove duplicates
          meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
          meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
 
          #6.7x8.3 3x5
-         c = plt.pcolormesh(array(meshX), array(meshY), array(plotCols), edgecolors='k', linewidths=2, cmap='bwr', vmin='-100', vmax='100') 
+         c = plt.pcolormesh(array(meshX), array(meshY), array(plotCols), cmap='bwr', vmin='-100', vmax='100') 
 
          plt.title('--- Your Baby u1 ---')
          plt.xticks(meshX) #plot the ticks on the x axis with all x points
