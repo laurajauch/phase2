@@ -3,7 +3,7 @@ from plot import *
 from Form import *
 import cPickle as pickle
 
-class main:  #this class is partially contained in the main method below
+class main: 
 
    def __init__(self):
       self.state = initial()
@@ -26,7 +26,6 @@ class initial:
       if(selection == "create"):
          return solver_type()
       elif(selection == "load"):
-         print ("load not yet implemented")
          return load() #this should be whatever state handles loading
       else:
          print ("Input not understood")
@@ -41,43 +40,75 @@ class solver_type:
       #determines what type of problem
       if(selection == "stokes"):
          return solver(False)
-      elif(selection == "navier-stokes"): # I believe that NS is steady state only...
+      elif(selection == "navier-stokes"):
          return solver(True)
       else:
          print ("Input not understood")
          return self
+         
+class transition():
+   def prompt(self):
+      return "You can now: plot, refine, save, load, or exit. \n>"
    
-class refine:
+   def handle(self, selection):
+      if selection == 'plot':
+         return plot()
+      elif selection == 'refine':
+         if Form.Instance().getData()[0] == 'Stokes':
+            return refineS()
+         else:
+            return refineNS()
+      elif nextAction == 'save':
+         return save()
+      elif nextAction == 'load':
+         return load()
+      else:
+         print "Input not understood."
+      return self
+   
+class refineNS:
    def prompt(self):
       self.form = Form.Instance().get()
-      return "Would you like p or h-auto refinement? \n>"
-   
-   def handle(self, selection): 
-      # we need the form. Also I don't actually know what this code does.
-      print "SF0"
-      energyError = self.form.solution().energyErrorTotal() #SEG FAULT - b/c no boundary conditions??
-      print "SF1"
+      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n>"
+
+   def handle(self, selection):
+      energyError = self.form.solutionIncrement().energyErrorTotal()
       mesh = self.form.solution().mesh()
-      print "SF2"
-      elementCount = mesh.numActiveElements()
-      print "SF3"
-      globalDofCount = mesh.globalDofs()
-      refinementNumber = 0
+      maxSteps = 10
 
       if selection == 'h-auto':
-     #while energyError > threshold and refinement <= 8: This guard needs to be updated
-         #Dr. Roberts said the interior of this loop should do what we want for h-auto
-         #form.hRefine() for each cellID - does hRefine take an argument?
-         #form.solve() 
-         #energyError = form.solution().energyErrorTotal()
-         #refinementNumber += 1
-         #elementcount = mesh.numActiveElements()
-         #globalDofCount = mesh.numGlobalDofs()
-         #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-         #print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount)       
-         pass
-
-      if selection == 'p':
+         print "Automatically refining in h..."
+         self.form.hRefine()
+         nonlinearSolve(maxSteps, self.form)
+         energyError = self.form.solutionIncrement().energyErrorTotal()
+         elementCount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+        
+      elif selection == 'p-auto':
+         print "Automatically refining in p..."
+         self.form.pRefine()
+         nonlinearSolve(maxSteps, self.form)
+         energyError = self.form.solutionIncrement().energyErrorTotal()
+         elementCount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+       
+      elif selection == 'h-manual':
+         cellIDs = mesh.getActiveCellIDs()
+         print "Your active cells are: "
+         print cellIDs
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         if refineCell == 'exit':
+            return 0
+         refineCell = refineCell.split()
+         refineCell = map(int, refineCell)
+         print refineCell
+         self.form.solution().mesh().hRefine(refineCell)
+         nonlinearSolve(maxSteps, self.form)
+         energyError = self.form.solutionIncrement().energyErrorTotal()
+         elementCount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+      
+      elif selection == 'p-manual':
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
@@ -85,8 +116,84 @@ class refine:
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split() #convert input to list
-         #feed list through hRefine() and/or pRefine()...?
-       
+         refineCell = map(int, refineCell)
+         self.form.solution().mesh().pRefine(refineCell)
+         nonlinearSolve(maxSteps, self.form)
+         energyError = self.form.solutionIncrement().energyErrorTotal()
+         elementCount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+      
+      else:
+         print "Input not understood"
+         return refineNS()
+      print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      print("Energy error after refinement: %0.3f" % (energyError))
+      
+      return transition()
+
+class refineS:
+   def prompt(self):
+      self.form = Form.Instance().get()
+      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n>"
+   
+   def handle(self, selection): 
+      energyError = self.form.solution().energyErrorTotal() 
+      mesh = self.form.solution().mesh()
+   
+      if selection == 'h-auto':
+         print "Automatically refining in h..."
+         self.form.hRefine() 
+         self.form.solve() 
+         energyError = self.form.solution().energyErrorTotal()
+         elementcount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+                 
+      elif selection == 'p-auto':
+         print "Automatically refining in p..."
+         self.form.pRefine()
+         self.form.solve() 
+         energyError = self.form.solution().energyErrorTotal()
+         elementcount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+      
+      elif selection == 'h-manual':
+         cellIDs = mesh.getActiveCellIDs()
+         print "Your active cells are: "
+         print cellIDs
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         if refineCell == 'exit':
+            return 0
+         refineCell = refineCell.split()
+         refineCell = map(int, refineCell)
+         self.form.solution().mesh().hRefine(refineCell) 
+         self.form.solve() 
+         energyError = self.form.solution().energyErrorTotal()
+         elementcount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+        
+      elif selection == 'p-manual':
+         cellIDs = mesh.getActiveCellIDs()
+         print "Your active cells are: "
+         print cellIDs
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         if refineCell == 'exit':
+            return 0
+         refineCell = refineCell.split()
+         refineCell = map(int, refineCell)
+         self.form.solution().mesh().pRefine(refineCell) 
+         self.form.solve() 
+         energyError = self.form.solution().energyErrorTotal()
+         elementcount = mesh.numActiveElements()
+         globalDofCount = mesh.numGlobalDofs()
+      
+      else:
+         print "Input not understood"
+         return refineS()
+      
+      print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      print("Energy error after refinement: %0.3f" % (energyError))
+     
+      return transition()
 
 
 class load:
@@ -95,25 +202,30 @@ class load:
       return "Filename: \n> "
 
    def handle(self, selection):
-      filename = selection
-      file = open(filename, 'rb')
-      form = pickle.load(file)
-      file.close()
-      Form.Instance.setForm(form)
+      filename = selection + ".data"
+      data = pickle.load(open(filename, 'rb'))
+
+      s_type = data[0]
+      polyOrder = data[1]
+      Re = data[2]
+      delta_k =1
+      spaceDim = 2
+      useConformingTraces = True
+      mu = 1.0
       
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      #change state to next action
-      if nextAction == 'plot':
-         return plot()
-      if nextAction == 'refine':
-         return refine()
-      if nextAction == 'save':
-         return save()
-      if nextAction == 'load':
-         return load()
-      if nextAction == 'exit':
-         return 0
+      if s_type == 'Stokes':
+         form = StokesVGPFormulation(spaceDim, useConformingTraces, mu)
+         form.initializeSolution(selection, polyOrder, delta_k)
+         
+
+      elif s_type == 'Navier-Stokes':
+         form = NavierStokesVGPFormulation(selection, spaceDim, Re, polyOrder, delta_k)
       
+      print "Loaded."
+      Form.Instance().setData(data)
+      Form.Instance().setForm(form)
+      
+      return transition()
 
 class save:
 
@@ -121,26 +233,29 @@ class save:
       return "Name a file to save to: \n> "
 
    def handle(self, selection):
-      filename = selection
-      file = open(filename, 'wb')
-      pickle.dump(Form.Instance().get(), file)
-      file.close()
-      print "Saved Successfully!"
+      data = Form.Instance().getData()
+
+      pickle.dump(data, open(selection +".data", 'wb'))
+
+      print("Saving to "+ selection)
+      Form.Instance().get().save(selection)
+      print "...saved."
+      self.state = initial()
+
+
+def nonlinearSolve(maxSteps, form):
+            normOfIncrement = 1
+            stepNumber = 0
+            nonlinearThreshold = 1e-3
+            while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
+               form.solveAndAccumulate()
+               normOfIncrement = form.L2NormSolutionIncrement()
+               print("L^2 norm of increment: %0.3f" % normOfIncrement)
+               stepNumber += 1
+
 
 def start():
-   #self.state = initial()
    state = main()
-   selection = ""
-   while selection != "exit":
-      if isinstance(self.state, int): #if state is a number, quit
-         break
-         selection = raw_input(self.state.prompt())
-         if(selection != "exit"):
-            self.state = self.state.handle(selection.lower())
-   print ("Exiting")
-   
-   #fails to exit if we remove the selfs which are producing warnings.
-   
 
 if __name__ == "__main__":
    start()
