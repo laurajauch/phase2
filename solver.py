@@ -147,3 +147,9 @@ class solver:
             print ("Input not understood")
 	    return "exit"  #Do we really want to exit here? 
       return temp
+
+
+
+
+                           
+
