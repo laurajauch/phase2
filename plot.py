@@ -5,7 +5,7 @@ from matplotlib import *
 from numpy import *
 import matplotlib.pyplot as plt
 
-class plot: #So to get the info to plot, refine we pass in the form object from above...?
+class plot:
    
    def prompt(self):
       self.form = Form.Instance().get()
@@ -66,20 +66,20 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
          plt.show() #show the plot
             
             
-      if selection == 'u2': #--------------------------------u2---------------------------------
+      elif selection == 'u2': #--------------------------------u2---------------------------------
          u2_soln = Function.solution(form.u(2), form.solution())
          for cellID in aCIDs:
             (values, points) = u2_soln.getCellValues(mesh, cellID, refCellVertexPoints)
 
-      if selection == 'p': #--------------------------------p---------------------------------
+      elif selection == 'p': #--------------------------------p---------------------------------
          p_soln = Function.solution(form.p(), form.solution())
          for cellID in aCIDs:
             (values, points) = p_soln.getCellValues(mesh, cellID,refCellVertexPoints) 
 
-      if selection == 'stream function':
+      elif selection == 'stream function':
          pass
 
-      if selection == 'mesh': #--------------------------------mesh---------------------------------
+      elif selection == 'mesh': #--------------------------------mesh---------------------------------
          meshX = []
          meshY = []
          tempCell = []
@@ -110,9 +110,13 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
          plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
          plt.ylim(0, meshY[len(meshY)-1]) #limit the y axis to the minimum mesh dimension
          plt.show() #show the plot
-
-      if selection == 'error':
+  
+      elif selection == 'error':
          pass
 
-      #returns a tuple (values -list of floats, physical points)
+
+      else:
+         print "Input not understood"
+         return self
+
       return transition()

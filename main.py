@@ -6,6 +6,7 @@ import cPickle as pickle
 class main: 
 
    def __init__(self):
+      print "Welcome to the PyCamellia incompressible flow solver!"
       self.state = initial()
       selection = ""
       while selection != "exit":
@@ -26,7 +27,7 @@ class initial:
       if(selection == "create"):
          return solver_type()
       elif(selection == "load"):
-         return load() #this should be whatever state handles loading
+         return load() 
       else:
          print ("Input not understood")
          return self
@@ -46,9 +47,9 @@ class solver_type:
          print ("Input not understood")
          return self
          
-class transition():
+class transition:
    def prompt(self):
-      return "You can now: plot, refine, save, load, or exit. \n>"
+      return "You can now: plot, refine, save, load, or exit. \n >"
    
    def handle(self, selection):
       if selection == 'plot':
@@ -58,9 +59,9 @@ class transition():
             return refineS()
          else:
             return refineNS()
-      elif nextAction == 'save':
+      elif selection == 'save':
          return save()
-      elif nextAction == 'load':
+      elif selection == 'load':
          return load()
       else:
          print "Input not understood."
@@ -69,7 +70,7 @@ class transition():
 class refineNS:
    def prompt(self):
       self.form = Form.Instance().get()
-      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n>"
+      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n> "
 
    def handle(self, selection):
       energyError = self.form.solutionIncrement().energyErrorTotal()
@@ -96,7 +97,7 @@ class refineNS:
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
-         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n> ")
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split()
@@ -112,7 +113,7 @@ class refineNS:
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
-         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n> ")
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split() #convert input to list
@@ -125,7 +126,8 @@ class refineNS:
       
       else:
          print "Input not understood"
-         return refineNS()
+         return self
+
       print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
       print("Energy error after refinement: %0.3f" % (energyError))
       
@@ -134,7 +136,7 @@ class refineNS:
 class refineS:
    def prompt(self):
       self.form = Form.Instance().get()
-      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n>"
+      return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n> "
    
    def handle(self, selection): 
       energyError = self.form.solution().energyErrorTotal() 
@@ -160,7 +162,7 @@ class refineS:
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
-         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n> ")
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split()
@@ -175,7 +177,7 @@ class refineS:
          cellIDs = mesh.getActiveCellIDs()
          print "Your active cells are: "
          print cellIDs
-         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n>")
+         refineCell = raw_input("Which cells would you like to refine? (Ex. 1 2 4) \n> ")
          if refineCell == 'exit':
             return 0
          refineCell = refineCell.split()
@@ -188,7 +190,7 @@ class refineS:
       
       else:
          print "Input not understood"
-         return refineS()
+         return self
       
       print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
       print("Energy error after refinement: %0.3f" % (energyError))
@@ -240,7 +242,7 @@ class save:
       print("Saving to "+ selection)
       Form.Instance().get().save(selection)
       print "...saved."
-      self.state = initial()
+      self.state = main()
 
 
 def nonlinearSolve(maxSteps, form):
@@ -255,7 +257,7 @@ def nonlinearSolve(maxSteps, form):
 
 
 def start():
-   state = main()
+   main()
 
 if __name__ == "__main__":
    start()

@@ -3,6 +3,7 @@ from main import *
 from plot import *
 from Form import *
 
+
 class solver:
 
    def __init__(self, s_type):
