@@ -144,24 +144,7 @@ class solver:
       Form.Instance().setData([self.s_type, polyOrder, re])
       Form.Instance().setForm(form)
 
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      while nextAction != 'exit':
-      #change state to next action
-         if nextAction == 'plot':
-            return plot()
-         elif nextAction == 'refine':
-            if self.s_type:
-               return refineNS()
-            else:
-               return refineS()
-         elif nextAction == 'save':
-            return save()
-         elif nextAction == 'load':
-            return load()
-         else:
-            print "Input not understood."
-            nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      return 0 #exit the program
+      return transition()
 
 
    def re_num(self, prompt):
