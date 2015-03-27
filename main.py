@@ -3,7 +3,7 @@ from plot import *
 from Form import *
 import cPickle as pickle
 
-class main:  #this class is partially contained in the main method below
+class main: 
 
    def __init__(self):
       self.state = initial()
@@ -40,7 +40,7 @@ class solver_type:
       #determines what type of problem
       if(selection == "stokes"):
          return solver(False)
-      elif(selection == "navier-stokes"): # I believe that NS is steady state only...
+      elif(selection == "navier-stokes"):
          return solver(True)
       else:
          print ("Input not understood")
@@ -89,23 +89,28 @@ class load:
       return "Filename: \n> "
 
    def handle(self, selection):
-      filename = selection
-      #parse through poly order, type and Re
+      filename = selection + ".data"
+      data = pickle.load(open(filename, 'rb'))
+
+      s_type = data[0]
+      polyOrder = data[1]
+      Re = data[2]
+      delta_k =1
+      spaceDim = 2
+      useConformingTraces = True
+      mu = 1.0
       
-      #form = ''
-      type = ''
-      if type == 'Stokes':
-         #form.initializeSolution(selection, polyOrder)
-         pass
+      if s_type == 'Stokes':
+         form = StokesVGPFormulation(spaceDim, useConformingTraces, mu)
+         form.initializeSolution(selection, polyOrder, delta_k)
+         
 
-      if type == 'Navier-Stokes':
-
-         #form = NavierStokesVGPFormulation(selection, 2, Re, polyOrder)
-         pass
-
-
-
-      Form.Instance.setForm(form)
+      elif s_type == 'Navier-Stokes':
+         form = NavierStokesVGPFormulation(selection, spaceDim, Re, polyOrder, delta_k)
+      
+      print "Loaded."
+      Form.Instance().setData(data)
+      Form.Instance().setForm(form)
       
       nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       #change state to next action
@@ -129,25 +134,19 @@ class save:
       return "Name a file to save to: \n> "
 
    def handle(self, selection):
-      filename = selection
-      file.save(selection)
-      #save RE and polyOrder and problem type
-      print "Saved Successfully!"
+      data = Form.Instance().getData()
+
+      pickle.dump(data, open(selection +".data", 'wb'))
+
+      print("Saving to "+ selection)
+      Form.Instance().get().save(selection)
+      print "...saved."
+      self.state = initial()
+
+
 
 def start():
-   #self.state = initial()
    state = main()
-   selection = ""
-   while selection != "exit":
-      if isinstance(self.state, int): #if state is a number, quit
-         break
-         selection = raw_input(self.state.prompt())
-         if(selection != "exit"):
-            self.state = self.state.handle(selection.lower())
-   print ("Exiting")
-   
-   #fails to exit if we remove the selfs which are producing warnings.
-   
 
 if __name__ == "__main__":
    start()

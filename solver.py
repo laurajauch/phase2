@@ -42,7 +42,6 @@ class solver:
       response = self.dims_num("How many elements are in the mesh?  (E.g., 3 x 5) \n> ")
       if response == "exit": 
          return 0
-      #numElements = [int(y[0]), int(y[1])]
       numElements = [int(response[0]), int(response[1])]
      
       meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
@@ -53,13 +52,15 @@ class solver:
       
       delta_k = 1
       
-      form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
- 
+      if self.s_type:  #NavierStokes form
+         form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
+      else:            #Stokes form
+         form = StokesVGPFormulation(spaceDim,True,1.0)
+         form.initializeSolution(meshTopo,polyOrder,delta_k)
+
       form.addZeroMeanPressureCondition() 
-
-
       
-      #boundary/inflow conditions
+      #inflow conditions
       inflowNum = raw_input("How many inflow conditions? (Ex. 2) \n>")
       i = 0
       if inflowNum == "exit":
@@ -68,34 +69,25 @@ class solver:
          while i < int(inflowNum):
             inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n>")
             inf = [z.strip() for z in inflow.split(',')]
-            
-            #if len(inflow[0]) == 3:
             spFils = self.getSF(inf[0])
-            del inf[0]
-         #   else:
-          #     raise ValueError 
-         
+            del inf[0] 
             for x in inf:
-           #    if len(x) == 3:
                spFils = spFils and self.getSF(x) 
-               #else:
-                #  raise ValueError
-            
-            
+
                   
-            inflowxVel = raw_input("What is the x component of the velocity? \n>")
+            #inflowxVel = raw_input("What is the x component of the velocity? \n>")
             #parse
             xVel = Function.constant(0)
 
-            inflowyVel = raw_input("What is the y component of the velocity? \n>")
+            #inflowyVel = raw_input("What is the y component of the velocity? \n>")
             #parse
-            yVel = Function.constant(0)
+            yVel = Function.constant(12)
    
             velocity = Function.vectorize(xVel,yVel)
             form.addInflowCondition(spFils, velocity)
             form.addWallCondition(SpatialFilter.negatedFilter(spFils))
             i += 1
-      except: #(ValueError):
+      except(ValueError):
          print("Input not understood")
          return self
          
@@ -107,43 +99,39 @@ class solver:
          return 0
       try:
          while i < int(outflowNum):
-            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2 \n>") 
-            inf = [z.strip() for z in inflow.split(',')]
+            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n>") 
+            inf = [z.strip() for z in outflow.split(',')]
             
-            #if len(inf[0]) == 3:
             spFilsO = self.getSF(inf[0])
             del inf[0]
-            #else:
-             #  raise ValueError 
-              # return 0
             for x in inf:
-             #  if len(x) == 3:
                spFilsO = spFilsO and self.getSF(x) 
-               #else:
-                #  raise ValueError
             
             form.addOutflowCondition(spFilsO)
             form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
             i += 1
-      except(ValueError):
+      except:
          print("Input not understood")
          return self
 
       print "Solving..."
       
-      form.solve()  #attribute error??
+      form.solve() 
+      refinementNumber = 0
 
-      #energyError = form.solution().energyErrorTotal()  #-----> SEG FAULT
-      #mesh = form.solution().mesh()
-      #elementCount = mesh.numActiveElements()
-      #globalDofCount = mesh.numGlobalDofs()
-      #print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      energyError = form.solution().energyErrorTotal() 
+      mesh = form.solution().mesh()
+      elementCount = mesh.numActiveElements()
+      globalDofCount = mesh.numGlobalDofs()
+      print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      print("Energy error is %0.3f" %energyError)
       #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-      
-      #Form.Instance.setForm(form)
-      nextAction = ''
+   
+      Form.Instance().setData([self.s_type, polyOrder, re])
+      Form.Instance().setForm(form)
+
+      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       while nextAction != 'exit':
-         nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       #change state to next action
          if nextAction == 'plot':
             return plot()
@@ -155,7 +143,7 @@ class solver:
             return load()
          else:
             print "Input not understood."
-
+            nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
       return 0 #exit the program
 
 
@@ -190,35 +178,25 @@ class solver:
 
 
    def getSF(self, arg):
-      #arg = [x.strip() for x in args.split()]
-      index = 0
+      arg = arg.replace(" ", "")
       arg = list(arg)
-      for x in arg:
-         if x == ' ':
-            del arg[index]
-         else:
-            index += 1
-      
    
       op = arg[1]
       xory = arg[0]
-      try:
-         if xory == 'x':
-         
-            if op == '=':
-               return SpatialFilter.matchingX(float(arg[2]))
-            if op == '>':
-               return SpatialFilter.greaterThanX(float(arg[2]))
-            if op == '<':
-               return SpatialFilter.lessThanX(float(arg[2]))
+      
+      if xory == 'x':
+         if op == '=':
+            return SpatialFilter.matchingX(float(arg[2]))
+         if op == '>':
+            return SpatialFilter.greaterThanX(float(arg[2]))
+         if op == '<':
+            return SpatialFilter.lessThanX(float(arg[2]))
 
-         elif xory == 'y':
-            if op == '=':
-               return SpatialFilter.matchingY(float(arg[2]))
-            if op == '>':
-               return SpatialFilter.greaterThanY(float(arg[2]))
-            if op == '<':
-               return SpatialFilter.lessThanY(float(arg[2]))
-      except: #(ValueError, TypeError):
-         #print "Input not understood"
-         pass
+      elif xory == 'y':
+         if op == '=':
+            return SpatialFilter.matchingY(float(arg[2]))
+         if op == '>':
+            return SpatialFilter.greaterThanY(float(arg[2]))
+         if op == '<':
+            return SpatialFilter.lessThanY(float(arg[2]))
+   
