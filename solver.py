@@ -64,13 +64,13 @@ class solver:
 
       
       #inflow conditions
-      inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n>")
+      inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n> ")
       i = 0
       if inflowNum == "exit":
          return 0
       try:
          while i < int(inflowNum):
-            inflow = raw_input("What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n>")
+            inflow = raw_input("For inflow condition "+ str(i + 1) +", What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n> ")
             inf = [z.strip() for z in inflow.split(',')]
             spFils = self.getSF(inf[0])
             del inf[0] 
@@ -78,13 +78,13 @@ class solver:
                spFils = spFils and self.getSF(x) 
 
                   
-            #inflowxVel = raw_input("What is the x component of the velocity? \n>")
-            #xVel = functionParser(inflowxVel)
+            inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
+            xVel = self.functionParser(inflowxVel)
 
-            #inflowyVel = raw_input("What is the y component of the velocity? \n>")
-            #yVel = functionParser(inflowyVel)
+            inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? \n> ")
+            yVel = self.functionParser(inflowyVel)
    
-            velocity = Function.vectorize(Function.constant(12.3), Function.constant(0))
+            velocity = Function.vectorize(xVel, yVel)
             form.addInflowCondition(spFils, velocity)
             form.addWallCondition(SpatialFilter.negatedFilter(spFils))
             i += 1
@@ -94,13 +94,13 @@ class solver:
          
 
       #outflow conditions
-      outflowNum = self.re_num("How many outflow conditions? (Ex. 2) \n>")
+      outflowNum = self.re_num("How many outflow conditions? (Ex. 2) \n> ")
       i = 0
       if outflowNum == "exit":
          return 0
       try:
          while i < int(outflowNum):
-            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n>") 
+            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n> ") 
             inf = [z.strip() for z in outflow.split(',')]
             
             spFilsO = self.getSF(inf[0])
@@ -180,7 +180,7 @@ class solver:
       return temp
 
 
-  def getSF(self, arg):
+   def getSF(self, arg):
       arg = arg.replace(" ", "")
       arg = list(arg)
    
@@ -204,26 +204,38 @@ class solver:
             return SpatialFilter.lessThanY(float(arg[2]))
    
 
-def functionParser(self, fun):
-      print fun
+   def functionParser(self, fun):
       operators = []
       comp = []
-      for i in range(len(fun)):
+      i = 0
+      while (i < (len(fun))):
          if i == 0 and fun[i] == "-":
             temp = "-"
             i+=1
             while self.isNum(fun[i]):
                temp+=fun[i]
                i+=1
+            i = i - 1
             comp.append(float(temp))
          else: 
             subFun = "" 
             if fun[i] == "(":
                i+=1
-               while fun[i] != ")":
+
+               j = i
+               lastParen = ["("]
+
+               while (len(lastParen) > 0):
+                  if fun[j] == ")":
+                     lastParen.pop()
+                  elif fun[j] == "(":
+                     lastParen.append("(")
+                  j = j+1
+
+               while i < j:
                   subFun += fun[i]
                   i+=1
-               print subFun
+               i = i-1
                comp.append(self.functionParser(subFun))
             elif fun[i] == "-" and i>0 and (fun[i-1] == "*" or fun[i-1] == "/" or fun[i-1] == "+"): 
                temp = "-"
@@ -231,6 +243,7 @@ def functionParser(self, fun):
                while self.isNum(fun[i]):
                   temp+=fun[i]
                   i+=1
+               i = i - 1
                comp.append(int(temp))
             elif fun[i] == "*" or fun[i] == "/" or fun[i] == "+" or fun[i] == "-":
                operators.append(fun[i])
@@ -249,7 +262,9 @@ def functionParser(self, fun):
                while i<len(fun) and (self.isNum(fun[i]) or fun[i] == "."):
                   temp+=fun[i]
                   i+=1
+               i = i-1
                comp.append(float(temp))
+         i = i + 1
 
       if len(comp) == 1:
          if self.isNum(comp[0]):
@@ -257,19 +272,27 @@ def functionParser(self, fun):
          else:
             return comp[0]
 
-      print comp[0]
-
       opComp = {0:["*","/"], 1:["+","-"]} 
       j = 0
-      for i in range(len(comp)-1):
+      
+      """
+      for i in range(len(operators)):
+         print operators[i]
+      """
+
+      i = 0
+      while(i < (len(comp)-1)):
          if operators[i] == opComp[j][0]:
             comp [i] = comp[i] * comp[i+1]
             comp.pop(i+1)
             operators.pop(i)
+            i -= 1
          elif operators[i] == opComp[j][1]:
-            toReturn += comp[i] / comp[i+1]
+            comp[i] = comp[i] / comp[i+1]
             comp.pop(i+1)
             operators.pop(i)
+            i-=1
+         i = i + 1
             
       j+=1
       toReturn = comp[0]
@@ -278,7 +301,8 @@ def functionParser(self, fun):
             toReturn += comp[i+1]
          elif operators[i] == opComp[j][1]:
             toReturn -= comp[i+1]
-         
+
+            
       if self.isNum(toReturn):
          return Function.constant(toReturn)
       else:
