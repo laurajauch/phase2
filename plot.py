@@ -1,6 +1,7 @@
 from main import *
 from solver import *
 from Form import *
+from matplotlib import *
 
 class plot: #So to get the info to plot, refine we pass in the form object from above...?
    
@@ -37,5 +38,5 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
       if selection == 'error':
           pass
 
-#returns a tuple (value -list of floats, physical points)
+#returns a tuple (values -list of floats, physical points)
       #matplotlib it! - pcolor or pcolormesh?
