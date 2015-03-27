@@ -61,7 +61,7 @@ class solver:
       form.addZeroMeanPressureCondition() 
       
       #inflow conditions
-      inflowNum = raw_input("How many inflow conditions? (Ex. 2) \n>")
+      inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n>")
       i = 0
       if inflowNum == "exit":
          return 0
@@ -76,14 +76,12 @@ class solver:
 
                   
             #inflowxVel = raw_input("What is the x component of the velocity? \n>")
-            #parse
-            xVel = Function.constant(0)
+            #xVel = functionParser(inflowxVel)
 
             #inflowyVel = raw_input("What is the y component of the velocity? \n>")
-            #parse
-            yVel = Function.constant(12)
+            #yVel = functionParser(inflowyVel)
    
-            velocity = Function.vectorize(xVel,yVel)
+            velocity = Function.vectorize(Function.constant(12.3), Function.constant(0))
             form.addInflowCondition(spFils, velocity)
             form.addWallCondition(SpatialFilter.negatedFilter(spFils))
             i += 1
@@ -93,7 +91,7 @@ class solver:
          
 
       #outflow conditions
-      outflowNum = raw_input("How many outflow conditions? (Ex. 2) \n>")
+      outflowNum = self.re_num("How many outflow conditions? (Ex. 2) \n>")
       i = 0
       if outflowNum == "exit":
          return 0
@@ -116,16 +114,32 @@ class solver:
 
       print "Solving..."
       
-      form.solve() 
-      refinementNumber = 0
+      if self.s_type: #solve Navier-Stokes
+         def nonlinearSolve(maxSteps):
+            normOfIncrement = 1
+            stepNumber = 0
+            nonlinearThreshold = 1e-3
+            while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
+               form.solveAndAccumulate()
+               normOfIncrement = form.L2NormSolutionIncrement()
+               print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
+               stepNumber += 1
 
-      energyError = form.solution().energyErrorTotal() 
+         maxSteps = 10
+         nonlinearSolve(maxSteps)
+         energyError = form.solutionIncrement().energyErrorTotal()
+
+      else:   #solve Stokes
+         form.solve() 
+         energyError = form.solution().energyErrorTotal()
+      
+
+
       mesh = form.solution().mesh()
       elementCount = mesh.numActiveElements()
       globalDofCount = mesh.numGlobalDofs()
       print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
       print("Energy error is %0.3f" %energyError)
-      #print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
    
       Form.Instance().setData([self.s_type, polyOrder, re])
       Form.Instance().setForm(form)
@@ -136,7 +150,10 @@ class solver:
          if nextAction == 'plot':
             return plot()
          elif nextAction == 'refine':
-            return refine()
+            if self.s_type:
+               return refineNS()
+            else:
+               return refineS()
          elif nextAction == 'save':
             return save()
          elif nextAction == 'load':
@@ -173,7 +190,7 @@ class solver:
             step = False
          except (ValueError, IndexError):
             print ("Input not understood")
-	    return "exit"  #Do we really want to exit here? 
+	    return "exit"  
       return temp
 
 
