@@ -135,7 +135,10 @@ def test3():
         print("mYEA:\n" + str(mYEA))
 
         colA = random.random_integers(-100, 100, (mXElems, mYElems)) #Fill an array with Z Values
-        print("colA:\n" + str(colA))
+        print("colA:\n" + str(colA) + "\n")
+
+        print("array(mXEA): " + str(array(mXEA)))
+        print("array(mYEA): " + str(array(mYEA)))
 
         #plots all X values mapped to all Y values and then makes them into a grid?
         c = plt.pcolormesh(array(mXEA), array(mYEA), colA, edgecolors='k', linewidths=2, 
@@ -145,7 +148,7 @@ def test3():
         #configure  X axes
         
         #plt.xlim(0, 10)
-        print mXEA
+        #print mXEA
         #mXEA = round(mXEA)
         plt.xticks(mXEA)
 
@@ -159,5 +162,72 @@ def test3():
             
     print ("Exiting")
 
+
+def test4():
+    selection = ""
+    while selection != "exit":
+        print("Mesh dimensions, doubles please:")
+        selection = raw_input()
+        if(selection == "exit"):
+            break
+        #mesh dim / num elements = increments between cells
+        mDims = [float(s.strip()) for s in selection.split("x")]
+        print mDims
+        
+        print("Number of elements, ints please:")
+        #--------GET NUMBER OF X AND Y ELEMENTS---------
+        selection = raw_input()
+        if(selection == "exit"):
+            break
+        mXYE = [int(s.strip()) for s in selection.split("x")]
+        print mXYE #meshXandYElements
+
+        mXElems = mXYE[0]
+        mYElems = mXYE[1]
+        
+        #mDims[0]/mXElems is the range of values that any X value can be, as the mesh in only so large
+        #Fill an array of size mXElems with random values for all X Coordinates
+        mXEA = [] #meshXElementsArray
+        xRatio = mDims[0]/mXElems
+        for i in range(0, int(mXElems)+1):
+            mXEA.append(mDims[0]-(xRatio*i))
+        print("mXEA:\n" + str(mXEA))
+
+        #Fill an array of size mXElems with random values for all Y Coordinates
+        mYEA = []
+        yRatio = mDims[1]/mYElems
+        print yRatio
+        for i in range(0, int(mYElems)+1):
+            mYEA.append(mDims[1]-(yRatio*i)) 
+        print("mYEA:\n" + str(mYEA))
+
+        colA = random.random_integers(-100, 100, (mXElems, mYElems)) #Fill an array with Z Values
+        print("colA:\n" + str(colA) + "\n")
+
+        print("array(mXEA): " + str(array(mXEA)))
+        print("array(mYEA): " + str(array(mYEA)))
+
+        #plots all X values mapped to all Y values and then makes them into a grid?
+        c = plt.pcolormesh(array(mXEA), array(mYEA), colA, edgecolors='k', linewidths=2, 
+                           cmap='bwr', vmin='-100', vmax='100') 
+        plt.title('Test4: Rounding ticks on the axes')
+
+        #configure  X axes
+        
+        #print mXEA
+        mXEA = around(mXEA, decimals = 3)
+        plt.xticks(mXEA)
+
+        #configure  Y axes
+        #plt.ylim(0, 10))
+        plt.yticks(mYEA)
+        plt.xlim(0, 5.4)
+
+
+        plt.show()
+        
+            
+    print ("Exiting")
+
 #Run the test
-test3()
+test4()

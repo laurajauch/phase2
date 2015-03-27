@@ -21,10 +21,11 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
          u1_soln = Function.solution(form.u(1), form.solution())
          for cellID in aCIDs:
             (values, points) = u1_soln.getCellValues(mesh, cellID,refCellVertexPoints)
+            
       if selection == 'u2': 
          u2_soln = Function.solution(form.u(2), form.solution())
          for cellID in aCIDs:
-            (values, points) = u2_soln.getCellValues(mesh, cellID,refCellVertexPoints)
+            (values, points) = u2_soln.getCellValues(mesh, cellID, refCellVertexPoints)
 
       if selection == 'p':
          p_soln = Function.solution(form.p(), form.solution())
@@ -49,16 +50,22 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
          #dummy color values for the plot as to be 0
          colA = zeros((len(meshX)-1, len(meshY)-1))
 
+         meshX = sorted(list(set(meshX))) #sort and remove duplicates 
+         meshY = sorted(list(set(meshY))) #sort and remove duplicates
+         meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
+         meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
+         #make the actual mesh plot
          c = plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                            cmap='bwr', vmin='-100', vmax='100') 
 
-         plt.title('---The Mesh---')
-         plt.xticks(meshX)
-         plt.yticks(meshY)
-         plt.show()
+         plt.title('--- Your Baby Mesh ---')
+         plt.xticks(meshX) #plot the ticks on the x axis with all x points
+         plt.yticks(meshY) #plot the ticks on the y axis with all y points
+         print("meshX: " + str(meshX)) #DEBUGGIN ---- IGNORE
+         print("meshY: " + str(meshY)) #DUBEGGIN ---- DONT WORRY ABOUT IT
+         plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
+         plt.ylim(0, meshY[len(meshY)-1]) #limit the y axis to the minimum mesh dimension
+         plt.show() #show the plot
 
       if selection == 'error':
          pass
-
-#returns a tuple (values -list of floats, physical points)
-      #matplotlib it! - pcolor or pcolormesh?
