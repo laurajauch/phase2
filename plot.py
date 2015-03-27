@@ -21,6 +21,13 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
          u1_soln = Function.solution(form.u(1), form.solution())
          for cellID in aCIDs:
             (values, points) = u1_soln.getCellValues(mesh, cellID,refCellVertexPoints)
+            for val in values:
+               colVal += val
+            colVal /= len(values) #colVal is the average of all z values for this cell
+         
+         c = plt.pcolormesh(colVal, edgecolors='k', linewidths=2, 
+                           cmap='bwr', vmin='-100', vmax='100') 
+            
             
       if selection == 'u2': 
          u2_soln = Function.solution(form.u(2), form.solution())

@@ -54,7 +54,7 @@ class transition():
       if selection == 'plot':
          return plot()
       elif selection == 'refine':
-         if Form.Instance().getData()[0] == 'Stokes":
+         if Form.Instance().getData()[0] == 'Stokes':
             return refineS()
          else:
             return refineNS()
