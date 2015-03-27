@@ -42,6 +42,7 @@ class solver:
       response = self.dims_num("How many elements are in the mesh?  (E.g., 3 x 5) \n> ")
       if response == "exit": 
          return 0
+
       numElements = [int(response[0]), int(response[1])]
      
       meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
@@ -59,6 +60,8 @@ class solver:
          form.initializeSolution(meshTopo,polyOrder,delta_k)
 
       form.addZeroMeanPressureCondition() 
+
+
       
       #inflow conditions
       inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n>")
@@ -177,7 +180,7 @@ class solver:
       return temp
 
 
-   def getSF(self, arg):
+  def getSF(self, arg):
       arg = arg.replace(" ", "")
       arg = list(arg)
    
@@ -200,3 +203,100 @@ class solver:
          if op == '<':
             return SpatialFilter.lessThanY(float(arg[2]))
    
+
+def functionParser(self, fun):
+      print fun
+      operators = []
+      comp = []
+      for i in range(len(fun)):
+         if i == 0 and fun[i] == "-":
+            temp = "-"
+            i+=1
+            while self.isNum(fun[i]):
+               temp+=fun[i]
+               i+=1
+            comp.append(float(temp))
+         else: 
+            subFun = "" 
+            if fun[i] == "(":
+               i+=1
+               while fun[i] != ")":
+                  subFun += fun[i]
+                  i+=1
+               print subFun
+               comp.append(self.functionParser(subFun))
+            elif fun[i] == "-" and i>0 and (fun[i-1] == "*" or fun[i-1] == "/" or fun[i-1] == "+"): 
+               temp = "-"
+               i+=1
+               while self.isNum(fun[i]):
+                  temp+=fun[i]
+                  i+=1
+               comp.append(int(temp))
+            elif fun[i] == "*" or fun[i] == "/" or fun[i] == "+" or fun[i] == "-":
+               operators.append(fun[i])
+            elif fun[i].isalpha():
+               if fun[i+1] == "^":
+                  i += 2
+                  temp = ""
+                  while self.isNum(fun[i]):
+                     temp+=fun[i]
+                     i+=1
+                  comp.append(Function.xn(int(temp)))
+               else:
+                  comp.append(Function.xn(1))
+            elif self.isNum(fun[i]):
+               temp = ""
+               while i<len(fun) and (self.isNum(fun[i]) or fun[i] == "."):
+                  temp+=fun[i]
+                  i+=1
+               comp.append(float(temp))
+
+      if len(comp) == 1:
+         if self.isNum(comp[0]):
+            return Function.constant(int(comp[0]))
+         else:
+            return comp[0]
+
+      print comp[0]
+
+      opComp = {0:["*","/"], 1:["+","-"]} 
+      j = 0
+      for i in range(len(comp)-1):
+         if operators[i] == opComp[j][0]:
+            comp [i] = comp[i] * comp[i+1]
+            comp.pop(i+1)
+            operators.pop(i)
+         elif operators[i] == opComp[j][1]:
+            toReturn += comp[i] / comp[i+1]
+            comp.pop(i+1)
+            operators.pop(i)
+            
+      j+=1
+      toReturn = comp[0]
+      for i in range(len(comp)-1):
+         if operators[i] == opComp[j][0]:
+            toReturn += comp[i+1]
+         elif operators[i] == opComp[j][1]:
+            toReturn -= comp[i+1]
+         
+      if self.isNum(toReturn):
+         return Function.constant(toReturn)
+      else:
+         return toReturn
+         
+
+
+   def isNum(self, num):
+      try:
+         int(num)
+         return True
+      except:
+         return False
+         
+      
+
+
+                           
+
+
+
