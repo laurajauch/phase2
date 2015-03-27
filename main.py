@@ -45,6 +45,26 @@ class solver_type:
       else:
          print ("Input not understood")
          return self
+         
+class transition():
+   def prompt(self):
+      return "You can now: plot, refine, save, load, or exit. \n>"
+   
+   def handle(self, selection):
+      if selection == 'plot':
+         return plot()
+      elif selection == 'refine':
+         if Form.Instance().getData()[0] == 'Stokes":
+            return refineS()
+         else:
+            return refineNS()
+      elif nextAction == 'save':
+         return save()
+      elif nextAction == 'load':
+         return load()
+      else:
+         print "Input not understood."
+      return self
    
 class refineNS:
    def prompt(self):
@@ -106,24 +126,10 @@ class refineNS:
       else:
          print "Input not understood"
          return refineNS()
-
-      print("Energy error after refinement: %0.3f" % (energyError))
       print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      while nextAction != 'exit':
-      #change state to next action
-         if nextAction == 'plot':
-            return plot()
-         elif nextAction == 'refine':
-            return self
-         elif nextAction == 'save':
-            return save()
-         elif nextAction == 'load':
-            return load()
-         else:
-            print "Input not understood."
-            nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      return 0 #exit the program
+      print("Energy error after refinement: %0.3f" % (energyError))
+      
+      return transition()
 
 class refineS:
    def prompt(self):
@@ -183,25 +189,11 @@ class refineS:
       else:
          print "Input not understood"
          return refineS()
-
-      print("Energy error after refinement: %0.3f" % (energyError))
+      
       print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      while nextAction != 'exit':
-      #change state to next action
-         if nextAction == 'plot':
-            return plot()
-         elif nextAction == 'refine':
-            return self
-         elif nextAction == 'save':
-            return save()
-         elif nextAction == 'load':
-            return load()
-         else:
-            print "Input not understood."
-            nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      return 0 #exit the program
+      print("Energy error after refinement: %0.3f" % (energyError))
+     
+      return transition()
 
 
 class load:
@@ -233,24 +225,7 @@ class load:
       Form.Instance().setData(data)
       Form.Instance().setForm(form)
       
-      nextAction = raw_input("You can now: plot, refine, save, load, or exit. \n>")
-      #change state to next action
-      if nextAction == 'plot':
-         return plot()
-      elif nextAction == 'refine':
-          if s_type:
-             return refineNS()
-          else:
-             return refineS()
-      elif nextAction == 'save':
-         return save()
-      elif nextAction == 'load':
-         return load()
-      elif nextAction == 'exit':
-         return 0
-      else:
-         print "Input not understood"
-         return 0
+      return transition()
 
 class save:
 
