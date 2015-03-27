@@ -62,3 +62,4 @@ class plot: #So to get the info to plot, refine we pass in the form object from 
 
 #returns a tuple (values -list of floats, physical points)
       #matplotlib it! - pcolor or pcolormesh?
+      return transition()
