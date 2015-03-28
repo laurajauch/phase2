@@ -1,6 +1,5 @@
 from PyCamellia import *
 from main import *
-#from plot import *
 from Form import *
 from Transition import *
 
