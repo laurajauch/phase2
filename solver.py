@@ -1,10 +1,11 @@
 from PyCamellia import *
 from main import *
-from plot import *
+#from plot import *
 from Form import *
+from Transition import *
 
 
-class solver:
+class Solver:
 
    def __init__(self, s_type):
       self.s_type = s_type
@@ -36,22 +37,16 @@ class solver:
       x0 = [0.,0.]
 
       temp = self.dims_num("What are the dimensions of your mesh?  (E.g., 1.0 x 2.0) \n> ")
-      if temp == "exit": 
-         return 0
       dims = [float(temp[0]), float(temp[1])]
 
       response = self.dims_num("How many elements are in the mesh?  (E.g., 3 x 5) \n> ")
-      if response == "exit": 
-         return 0
 
       numElements = [int(response[0]), int(response[1])]
      
       meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 
       polyOrder = self.re_num("What polynomial order? (1 to 9) \n> ")
-      if polyOrder == "exit": 
-         return 0
-      
+
       delta_k = 1
       
       if self.s_type:  #NavierStokes form
@@ -67,8 +62,6 @@ class solver:
       #inflow conditions
       inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n> ")
       i = 0
-      if inflowNum == "exit":
-         return 0
       try:
          while i < int(inflowNum):
             inflow = raw_input("For inflow condition "+ str(i + 1) +", What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n> ")
@@ -79,10 +72,14 @@ class solver:
                spFils = spFils and self.getSF(x) 
 
                   
-            inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
+            inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? (Ex. -3*(y-1)*(y-2)) \n> ")
+            if inflowxVel.lower() == 'exit':
+               return 0
             xVel = self.functionParser(inflowxVel)
 
-            inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? \n> ")
+            inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? (Ex. -3*(y-1)*(y-2)) \n> ")
+            if inflowyVel == 'exit':
+               return 0
             yVel = self.functionParser(inflowyVel)
    
             velocity = Function.vectorize(xVel, yVel)
@@ -97,8 +94,6 @@ class solver:
       #outflow conditions
       outflowNum = self.re_num("How many outflow conditions? (Ex. 2) \n> ")
       i = 0
-      if outflowNum == "exit":
-         return 0
       try:
          while i < int(outflowNum):
             outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n> ") 
@@ -138,7 +133,6 @@ class solver:
          energyError = form.solution().energyErrorTotal()
       
 
-
       mesh = form.solution().mesh()
       elementCount = mesh.numActiveElements()
       globalDofCount = mesh.numGlobalDofs()
@@ -146,9 +140,10 @@ class solver:
       print("Energy error is %0.3f" %energyError)
    
       Form.Instance().setData([self.s_type, polyOrder, re])
+      print Form.Instance().getData()
       Form.Instance().setForm(form)
 
-      return transition()
+      return Transition()
 
 
    def re_num(self, prompt):
@@ -176,8 +171,7 @@ class solver:
             test = [float(temp[0]), float(temp[1])] #tests to make sure it is two numbers
             step = False
          except (ValueError, IndexError):
-            print ("Input not understood")
-	    return "exit"  
+            print ("Input not understood") 
       return temp
 
 
@@ -206,6 +200,7 @@ class solver:
    
 
    def functionParser(self, fun):
+
       operators = []
       comp = []
       i = 0
