@@ -77,9 +77,7 @@ class Solver:
                inf = [z.strip() for z in inflow.split(',')]
                spFils = self.getSF(inf[0])
                del inf[0] 
-               print "thinking about running"
                for x in inf:
-                  print "running!"
                   spFils = spFils and self.getSF(x) 
 
                   
@@ -96,9 +94,9 @@ class Solver:
                   raise ValueError
                velocity = Function.vectorize(xVel, yVel)
                form.addInflowCondition(spFils, velocity)
-               form.addWallCondition(SpatialFilter.negatedFilter(spFils))
+               #form.addWallCondition(SpatialFilter.negatedFilter(spFils))
                i += 1
-               check = False
+            check = False
          except ValueError:
             print("Input not understood, restarting sequence.")
          
@@ -121,11 +119,13 @@ class Solver:
                   spFilsO = spFilsO and self.getSF(x) 
                   
                   form.addOutflowCondition(spFilsO)
-                  form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
+                  #form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
                i += 1
-               check = False
+            check = False
          except:
             print("Input not understood, restarting sequence.")
+
+      form.addWallCondition(SpatialFilter.negatedFilter(spFils) or SpatialFilter.negatedFilter(spFils0))
 
       print "Solving..."
       
@@ -217,7 +217,6 @@ class Solver:
             return SpatialFilter.lessThanY(float(arg[2]))
 
       else:
-         print "error!"
          raise ValueError
    
 
@@ -269,7 +268,7 @@ class Solver:
                if i+1 < len(fun) and fun[i+1] == "^":
                   i += 2
                   temp = ""
-                  while self.isNum(fun[i]):
+                  while (i < len(fun) and self.isNum(fun[i])):
                      temp+=fun[i]
                      i+=1
                   comp.append(Function.xn(int(temp)))
@@ -286,7 +285,7 @@ class Solver:
 
       if len(comp) == 1:
          if self.isNum(comp[0]):
-            return Function.constant(int(comp[0]))
+            return Function.constant(float(comp[0]))
          else:
             return comp[0]
 
