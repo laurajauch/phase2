@@ -157,7 +157,6 @@ class Solver:
       print("Energy error is %0.3f" %energyError)
    
       Form.Instance().setData([self.s_type, polyOrder, re])
-      print Form.Instance().getData()
       Form.Instance().setForm(form)
 
       return Transition()
