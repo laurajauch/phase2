@@ -9,7 +9,7 @@ class testRefine(unittest.TestCase):
 
 
 
-    """def testStokesHAuto(self):
+    def testStokesHAuto(self):
         dims = [3.0, 6.0]
         numElements = [3, 6]
         x0 = [0., 0.]
@@ -46,15 +46,35 @@ class testRefine(unittest.TestCase):
         telementcount = testMesh.numActiveElements()
         tgdCount = testMesh.numGlobalDofs()
         #refine example in h-auto
-        self.compForm.hRefine() 
-        self.compForm.solve() 
-        energyError = self.compForm.solution().energyErrorTotal()
-        elementcount = self.mesh.numActiveElements()
-        globalDofCount = self.mesh.numGlobalDofs()
 
-        #self.assertEqual(tenergyError, energyError)
+
+        meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
+        compForm = StokesVGPFormulation(2, True, 1.0)
+        compForm.initializeSolution(meshTopo, polyOrder, delta_k)
+        compForm.addZeroMeanPressureCondition()
+        
+        inflow1 = SpatialFilter.matchingX(2.0)
+        inflow2 = SpatialFilter.greaterThanY(4.0)
+        inflowTot = inflow1 and inflow2
+        velocity = Function.vectorize(Function.constant(9), Function.xn(8))
+        compForm.addInflowCondition(inflowTot, velocity)
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot))
+        
+        outflow1 = SpatialFilter.lessThanY(1.0)
+        compForm.addOutflowCondition(outflow1)
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        mesh = compForm.solution().mesh()
+        numElems = mesh.numActiveElements()
+        gdcount = mesh.numGlobalDofs()
+        compForm.hRefine() 
+        compForm.solve() 
+        energyError = compForm.solution().energyErrorTotal()
+        elementcount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+
+        self.assertEqual(tenergyError, energyError)
         self.assertEqual(telementcount, elementcount)
-        self.assertEqual(tgdcount, globalDofCount) """
+        self.assertEqual(tgdCount, globalDofCount)
 
 
     def testStokesPAuto(self): 
@@ -94,15 +114,41 @@ class testRefine(unittest.TestCase):
         tgdCount = testMesh.numGlobalDofs()
         print "Through Stokes p-auto"
 
+        meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements,x0)
+        compForm = StokesVGPFormulation(2, True, 1.0)
+        compForm.initializeSolution(meshTopo, polyOrder, delta_k)
+        compForm.addZeroMeanPressureCondition()
+        
+        inflow1 = SpatialFilter.matchingX(2.0)
+        inflow2 = SpatialFilter.greaterThanY(4.0)
+        inflowTot = inflow1 and inflow2
+        velocity = Function.vectorize(Function.constant(9), Function.xn(8))
+        compForm.addInflowCondition(inflowTot, velocity)
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot))
+        
+        outflow1 = SpatialFilter.lessThanY(1.0)
+        compForm.addOutflowCondition(outflow1)
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        mesh = compForm.solution().mesh()
+        numElems = mesh.numActiveElements()
+        gdcount = mesh.numGlobalDofs()
         #refine example in p-auto
-        compForm.pRefine() #HERE'S WHERE WE FREAK OUT, I THINK
-        print "test1"
+        compForm.pRefine()
         compForm.solve() 
-        print "test2"
         energyError = compForm.solution().energyErrorTotal()
         elementcount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
-        #self.assertEqual(tenergyError, energyError)
+        self.assertEqual(tenergyError, energyError)
         self.assertEqual(telementcount, elementcount)
-        self.assertEqual(tgdcount, globalDofCount)
+        self.assertEqual(tgdCount, globalDofCount)
+
+
+    """def testNSHAuto(self):
+        dims = [3.0, 6.0]
+        numElements = [3, 6]
+        x0 = [0., 0.]
+        delta_k = 1
+        polyOrder = 3
+        #build the Navier-Stokes form, unrefined
+        meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements,x0)"""
