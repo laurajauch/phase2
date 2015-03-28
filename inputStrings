@@ -1,0 +1,6 @@
+create
+stokes
+transient
+1.0 x 2.0
+3 x 5
+exit
