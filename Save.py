@@ -1,4 +1,3 @@
-from main import *
 from Form import *
 import cPickle as pickle
 
@@ -15,4 +14,6 @@ class Save:
       print("Saving to "+ selection)
       Form.Instance().get().save(selection)
       print "...saved."
-      return Main()
+
+      from Transition import Transition
+      return Transition()

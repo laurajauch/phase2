@@ -6,7 +6,7 @@ from matplotlib import *
 from numpy import *
 import matplotlib.pyplot as plt
 
-class plot:
+class Plot:
    
    def prompt(self):
       self.form = Form.Instance().get()
@@ -121,4 +121,4 @@ class plot:
          print "Input not understood"
          return self
 
-      return transition()
+      return Transition()

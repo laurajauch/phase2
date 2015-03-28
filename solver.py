@@ -137,7 +137,7 @@ class Solver:
             while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
                form.solveAndAccumulate()
                normOfIncrement = form.L2NormSolutionIncrement()
-               print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
+               #print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
                stepNumber += 1
 
          maxSteps = 10
