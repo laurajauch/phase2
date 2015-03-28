@@ -121,4 +121,4 @@ class Plot:
          print "Input not understood"
          return self
 
-      return transition()
+      return Transition()

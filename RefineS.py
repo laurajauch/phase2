@@ -1,5 +1,4 @@
 from PyCamellia import *
-from Transition import *
 from Form import *
 
 
@@ -65,4 +64,5 @@ class RefineS:
       print("Mesh has %i elements and %i degrees of freedom." % (elementcount, globalDofCount))
       print("Energy error after refinement: %0.3f" % (energyError))
      
+      from Transition import Transition
       return Transition()

@@ -1,5 +1,5 @@
 from PyCamellia import *
-from Transition import *
+#from Transition import *
 from Form import *
 import cPickle as pickle
 
@@ -32,4 +32,5 @@ class Load:
       Form.Instance().setData(data)
       Form.Instance().setForm(form)
       
+      from Transition import Transition
       return Transition()

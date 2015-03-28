@@ -1,4 +1,3 @@
-from plot import *
 from RefineS import *
 from RefineNS import *
 from Save import *
@@ -12,6 +11,7 @@ class Transition:
    
    def handle(self, selection):
       if selection == 'plot':
+         from plot import Plot
          return Plot()
       elif selection == 'refine':
          print Form.Instance().getData()[0]

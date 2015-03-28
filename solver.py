@@ -1,6 +1,5 @@
 from PyCamellia import *
 from main import *
-#from plot import *
 from Form import *
 from Transition import *
 
@@ -138,7 +137,7 @@ class Solver:
             while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
                form.solveAndAccumulate()
                normOfIncrement = form.L2NormSolutionIncrement()
-               print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
+               #print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
                stepNumber += 1
 
          maxSteps = 10
@@ -158,7 +157,6 @@ class Solver:
       print("Energy error is %0.3f" %energyError)
    
       Form.Instance().setData([self.s_type, polyOrder, re])
-      print Form.Instance().getData()
       Form.Instance().setForm(form)
 
       return Transition()
