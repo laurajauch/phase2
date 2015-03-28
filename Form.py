@@ -4,10 +4,9 @@ from Singleton import *
 @Singleton
 class Form(object):
  
-   def __init__(self):#, s_type, polyOrder, re):
+   def __init__(self):
       pass
        
-
    def setForm(self, form):
      self.form = form
 
@@ -19,9 +18,12 @@ class Form(object):
       return [self.type, self.polyOrder, self.re]
    
    def setData(self, data):
-      if data[0] == False:
-         self.type = 'Stokes'
+      if isinstance(data[0], bool):
+         if data[0] == False:
+            self.type = 'Stokes'
+         elif data[0] == True:
+            self.type = 'Navier-Stokes'
       else:
-         self.type = 'Navier-Stokes'
+         self.type = data[0]
       self.polyOrder = data[1]
       self.re = data[2]

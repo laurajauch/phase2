@@ -1,10 +1,11 @@
 from PyCamellia import *
 from main import *
-from plot import *
+#from plot import *
 from Form import *
+from Transition import *
 
 
-class solver:
+class Solver:
 
    def __init__(self, s_type):
       self.s_type = s_type
@@ -157,9 +158,10 @@ class solver:
       print("Energy error is %0.3f" %energyError)
    
       Form.Instance().setData([self.s_type, polyOrder, re])
+      print Form.Instance().getData()
       Form.Instance().setForm(form)
 
-      return transition()
+      return Transition()
 
 
    def re_num(self, prompt):
@@ -222,6 +224,7 @@ class solver:
    
 
    def functionParser(self, fun):
+
       operators = []
       comp = []
       i = 0
