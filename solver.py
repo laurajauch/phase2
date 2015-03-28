@@ -69,29 +69,38 @@ class solver:
       i = 0
       if inflowNum == "exit":
          return 0
-      try:
-         while i < int(inflowNum):
-            inflow = raw_input("For inflow condition "+ str(i + 1) +", What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n> ")
-            inf = [z.strip() for z in inflow.split(',')]
-            spFils = self.getSF(inf[0])
-            del inf[0] 
-            for x in inf:
-               spFils = spFils and self.getSF(x) 
+      check = True
+      while (check):
+         try:
+            while i < int(inflowNum):
+               inflow = raw_input("For inflow condition "+ str(i + 1) +", What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n> ")
+               inf = [z.strip() for z in inflow.split(',')]
+               spFils = self.getSF(inf[0])
+               del inf[0] 
+               print "thinking about running"
+               for x in inf:
+                  print "running!"
+                  spFils = spFils and self.getSF(x) 
 
                   
-            inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
-            xVel = self.functionParser(inflowxVel)
+               inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
+               try:
+                  xVel = self.functionParser(inflowxVel)
+               except:
+                  raise ValueError
 
-            inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? \n> ")
-            yVel = self.functionParser(inflowyVel)
-   
-            velocity = Function.vectorize(xVel, yVel)
-            form.addInflowCondition(spFils, velocity)
-            form.addWallCondition(SpatialFilter.negatedFilter(spFils))
-            i += 1
-      except(ValueError):
-         print("Input not understood")
-         return self
+               inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? \n> ")
+               try:
+                  yVel = self.functionParser(inflowyVel)
+               except:
+                  raise ValueError
+               velocity = Function.vectorize(xVel, yVel)
+               form.addInflowCondition(spFils, velocity)
+               form.addWallCondition(SpatialFilter.negatedFilter(spFils))
+               i += 1
+               check = False
+         except ValueError:
+            print("Input not understood, restarting sequence.")
          
 
       #outflow conditions
@@ -99,22 +108,24 @@ class solver:
       i = 0
       if outflowNum == "exit":
          return 0
-      try:
-         while i < int(outflowNum):
-            outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n> ") 
-            inf = [z.strip() for z in outflow.split(',')]
-            
-            spFilsO = self.getSF(inf[0])
-            del inf[0]
-            for x in inf:
-               spFilsO = spFilsO and self.getSF(x) 
-            
-            form.addOutflowCondition(spFilsO)
-            form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
-            i += 1
-      except:
-         print("Input not understood")
-         return self
+      check = True
+      while(check):
+         try:
+            while i < int(outflowNum):
+               outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n> ") 
+               inf = [z.strip() for z in outflow.split(',')]
+               
+               spFilsO = self.getSF(inf[0])
+               del inf[0]
+               for x in inf:
+                  spFilsO = spFilsO and self.getSF(x) 
+                  
+                  form.addOutflowCondition(spFilsO)
+                  form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
+               i += 1
+               check = False
+         except:
+            print("Input not understood, restarting sequence.")
 
       print "Solving..."
       
@@ -155,7 +166,7 @@ class solver:
       step = True
       while(step):
          re = raw_input(prompt)
-         if re == "exit":
+         if isinstance(re, str) and re.lower() == "exit":
              return "exit"
          try:
             toReturn = int(re)
@@ -177,7 +188,6 @@ class solver:
             step = False
          except (ValueError, IndexError):
             print ("Input not understood")
-	    return "exit"  
       return temp
 
 
@@ -188,7 +198,9 @@ class solver:
       op = arg[1]
       xory = arg[0]
       
+      print xory
       if xory == 'x':
+         print "is x"
          if op == '=':
             return SpatialFilter.matchingX(float(arg[2]))
          if op == '>':
@@ -203,6 +215,10 @@ class solver:
             return SpatialFilter.greaterThanY(float(arg[2]))
          if op == '<':
             return SpatialFilter.lessThanY(float(arg[2]))
+
+      else:
+         print "error!"
+         raise ValueError
    
 
    def functionParser(self, fun):
@@ -249,7 +265,7 @@ class solver:
             elif fun[i] == "*" or fun[i] == "/" or fun[i] == "+" or fun[i] == "-":
                operators.append(fun[i])
             elif fun[i].isalpha():
-               if fun[i+1] == "^":
+               if i+1 < len(fun) and fun[i+1] == "^":
                   i += 2
                   temp = ""
                   while self.isNum(fun[i]):
@@ -276,7 +292,7 @@ class solver:
       opComp = {0:["*","/"], 1:["+","-"]} 
       j = 0
       
-      """
+      """ for debugging, ignore
       for i in range(len(operators)):
          print operators[i]
       """
