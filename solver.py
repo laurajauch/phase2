@@ -70,6 +70,7 @@ class Solver:
       if inflowNum == "exit":
          return 0
       check = True
+
       while (check):
          try:
             while i < int(inflowNum):
@@ -78,7 +79,12 @@ class Solver:
                spFils = self.getSF(inf[0])
                del inf[0] 
                for x in inf:
-                  spFils = spFils and self.getSF(x) 
+                  spFils = spFils and self.getSF(x)
+
+               if i == 0:
+                  inflows = spFils
+               else:
+                  inflows = spFils or inflows
 
                   
                inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
@@ -100,7 +106,7 @@ class Solver:
          except ValueError:
             print("Input not understood, restarting sequence.")
          
-
+      
       #outflow conditions
       outflowNum = self.re_num("How many outflow conditions? (Ex. 2) \n> ")
       i = 0
@@ -117,15 +123,23 @@ class Solver:
                del inf[0]
                for x in inf:
                   spFilsO = spFilsO and self.getSF(x) 
+
+               if i == 0:
+                  outflows = spFilsO
+               else:
+                  outflows = outflows or spFilsO
                   
-                  form.addOutflowCondition(spFilsO)
+               form.addOutflowCondition(spFilsO)
                   #form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
                i += 1
             check = False
-         except:
+         except ValueError:
             print("Input not understood, restarting sequence.")
 
-      form.addWallCondition(SpatialFilter.negatedFilter(spFils) or SpatialFilter.negatedFilter(spFils0))
+      form.addWallCondition(SpatialFilter.negatedFilter(inflows or outflows))
+
+      exporter = HDF5Exporter(form.solution().mesh(), "steadyStokes", ".")
+      exporter.exportSolution(form.solution(),0)
 
       print "Solving..."
       
@@ -198,9 +212,7 @@ class Solver:
       op = arg[1]
       xory = arg[0]
       
-      print xory
       if xory == 'x':
-         print "is x"
          if op == '=':
             return SpatialFilter.matchingX(float(arg[2]))
          if op == '>':
