@@ -7,12 +7,15 @@ class Save:
       return "Name a file to save to: \n> "
 
    def handle(self, selection):
-      data = Form.Instance().getData()
+      form = Form.Instance()
+      data = form.getData()
 
       pickle.dump(data, open(selection +".data", 'wb'))
 
       print("Saving to "+ selection)
-      Form.Instance().get().save(selection)
+      form.get().save(selection)
+      #exporter = HDF5Exporter(form.solution().mesh(), selection, ".")
+      #exporter.exportSolution(form.solution(),0)
       print "...saved."
 
       from Transition import Transition
