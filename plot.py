@@ -69,17 +69,18 @@ class Plot:
             
             
       elif selection == 'u2': #--------------------------------u2---------------------------------
-         u2_soln = Function.solution(form.u(2), form.solution())
+         u2_soln = Function.solution(self.form.u(2), self.form.solution())
          for cellID in aCIDs:
             (values, points) = u2_soln.getCellValues(mesh, cellID, refCellVertexPoints)
-
+            
       elif selection == 'p': #--------------------------------p---------------------------------
-         p_soln = Function.solution(form.p(), form.solution())
+         p_soln = Function.solution(self.form.p(), self.form.solution())
          for cellID in aCIDs:
             (values, points) = p_soln.getCellValues(mesh, cellID,refCellVertexPoints) 
 
       elif selection == 'stream function':
-         pass
+         stream_soln = Function.solution(self.form.streamPhi(), self.form.solution())
+         
 
       elif selection == 'mesh': #--------------------------------mesh---------------------------------
          meshX = []

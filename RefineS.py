@@ -4,10 +4,10 @@ from Form import *
 
 class RefineS:
    def prompt(self):
-      self.form = Form.Instance().get()
       return "Would you like h-auto, p-auto, h-manual or p-manual refinement? \n> "
    
    def handle(self, selection): 
+      self.form = Form.Instance().get()
       energyError = self.form.solution().energyErrorTotal() 
       mesh = self.form.solution().mesh()
    
