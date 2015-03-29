@@ -18,6 +18,8 @@ class Solver:
          self.f_type = False
       elif(selection == "transient"):
          self.f_type = True
+         print("not implamented")
+         return self
       else:
          print ("Input not understood")
          return self
@@ -32,9 +34,6 @@ class Solver:
          if re == "exit":
             return 0 #this causes the macro parser to skip all steps and quit
 
-      spaceDim = 2
-      x0 = [0.,0.]
-
       temp = self.dims_num("What are the dimensions of your mesh?  (E.g., 1.0 x 2.0) \n> ")
       if temp == "exit": 
          return 0
@@ -45,24 +44,12 @@ class Solver:
          return 0
 
       numElements = [int(response[0]), int(response[1])]
-     
-      meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 
       polyOrder = self.re_num("What polynomial order? (1 to 9) \n> ")
       if polyOrder == "exit": 
          return 0
-      
-      delta_k = 1
-      
-      if self.s_type:  #NavierStokes form
-         form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
-      else:            #Stokes form
-         form = StokesVGPFormulation(spaceDim,True,1.0)
-         form.initializeSolution(meshTopo,polyOrder,delta_k)
 
-      form.addZeroMeanPressureCondition() 
-
-
+      form = self.makeForm(numElements, dims, self.s_type, re, polyOrder)
       
       #inflow conditions
       inflowNum = self.re_num("How many inflow conditions? (Ex. 2) \n> ")
@@ -75,32 +62,15 @@ class Solver:
          try:
             while i < int(inflowNum):
                inflow = raw_input("For inflow condition "+ str(i + 1) +", What is inflow region " + str(i+1) +"? (Ex. x = 0, y < 4) \n> ")
-               inf = [z.strip() for z in inflow.split(',')]
-               spFils = self.getSF(inf[0])
-               del inf[0] 
-               for x in inf:
-                  spFils = spFils and self.getSF(x)
-
-               if i == 0:
-                  inflows = spFils
-               else:
-                  inflows = spFils or inflows
-
-                  
+  
                inflowxVel = raw_input("For inflow condition "+ str(i + 1) +", What is the x component of the velocity? \n> ")
-               try:
-                  xVel = self.functionParser(inflowxVel)
-               except:
-                  raise ValueError
-
                inflowyVel = raw_input("For inflow condition  "+ str(i + 1) +", What is the y component of the velocity? \n> ")
-               try:
-                  yVel = self.functionParser(inflowyVel)
-               except:
-                  raise ValueError
-               velocity = Function.vectorize(xVel, yVel)
-               form.addInflowCondition(spFils, velocity)
-               #form.addWallCondition(SpatialFilter.negatedFilter(spFils))
+               temp = self.makeInflow(inflow, inflowxVel, inflowyVel, form)
+               form = temp[0]
+               if(i==0):
+                  inflows = temp[1]
+               else:
+                  inflow = inflows or temp[1]
                i += 1
             check = False
          except ValueError:
@@ -117,20 +87,12 @@ class Solver:
          try:
             while i < int(outflowNum):
                outflow = raw_input("What is outflow region " + str(i+1) +"? (Ex. x = 0, y > 2) \n> ") 
-               inf = [z.strip() for z in outflow.split(',')]
-               
-               spFilsO = self.getSF(inf[0])
-               del inf[0]
-               for x in inf:
-                  spFilsO = spFilsO and self.getSF(x) 
-
-               if i == 0:
-                  outflows = spFilsO
+               temp = self.makeOutflow(outflow, form)
+               form = temp[0]
+               if i==0:
+                  outflows = temp[1]
                else:
-                  outflows = outflows or spFilsO
-                  
-               form.addOutflowCondition(spFilsO)
-                  #form.addWallCondition(SpatialFilter.negatedFilter(spFilsO))
+                  outflows = outflows or temp[1]
                i += 1
             check = False
          except ValueError:
@@ -138,12 +100,25 @@ class Solver:
 
       form.addWallCondition(SpatialFilter.negatedFilter(inflows or outflows))
 
-      exporter = HDF5Exporter(form.solution().mesh(), "steadyStokes", ".")
-      exporter.exportSolution(form.solution(),0)
-
       print "Solving..."
       
-      if self.s_type: #solve Navier-Stokes
+      temp = self.solve(form, self.s_type)
+      energyError = temp[1]
+      form = temp[0]
+
+      mesh = form.solution().mesh()
+      elementCount = mesh.numActiveElements()
+      globalDofCount = mesh.numGlobalDofs()
+      print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+      print("Energy error is %0.3f" %energyError)
+   
+      Form.Instance().setData([self.s_type, polyOrder, re])
+      Form.Instance().setForm(form)
+
+      return Transition()
+
+   def solve(self, form, s_type):
+      if s_type: #solve Navier-Stokes
          def nonlinearSolve(maxSteps):
             normOfIncrement = 1
             stepNumber = 0
@@ -161,19 +136,61 @@ class Solver:
       else:   #solve Stokes
          form.solve() 
          energyError = form.solution().energyErrorTotal()
+
+      return [form, energyError]
+
+   def makeForm(self, numElements, dims, s_type, re, polyOrder):
+      spaceDim = 2
+      x0 = [0.,0.]
+
+      meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
+
+      delta_k = 1
       
+      if self.s_type:  #NavierStokes form
+         form = NavierStokesVGPFormulation(meshTopo,re,polyOrder,delta_k)
+      else:            #Stokes form
+         form = StokesVGPFormulation(spaceDim,True,1.0)
+         form.initializeSolution(meshTopo,polyOrder,delta_k)
 
+      form.addZeroMeanPressureCondition() 
+      
+      return form
 
-      mesh = form.solution().mesh()
-      elementCount = mesh.numActiveElements()
-      globalDofCount = mesh.numGlobalDofs()
-      print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-      print("Energy error is %0.3f" %energyError)
-   
-      Form.Instance().setData([self.s_type, polyOrder, re])
-      Form.Instance().setForm(form)
+   def makeInflow(self, inflow, inflowxVel, inflowyVel, form):
+      inf = [z.strip() for z in inflow.split(',')]
+      spFils = self.getSF(inf[0])
+      del inf[0] 
+      for x in inf:
+         spFils = spFils and self.getSF(x)
 
-      return Transition()
+      inflows = spFils
+
+      try:
+         xVel = self.functionParser(inflowxVel)
+      except:
+         raise ValueError
+
+      try:
+         yVel = self.functionParser(inflowyVel)
+      except:
+         raise ValueError
+      velocity = Function.vectorize(xVel, yVel)
+      form.addInflowCondition(spFils, velocity)
+      return [form, inflows]
+
+   def makeOutflow(self, outflow, form):
+      inf = [z.strip() for z in outflow.split(',')]
+               
+      spFilsO = self.getSF(inf[0])
+      del inf[0]
+      for x in inf:
+         spFilsO = spFilsO and self.getSF(x) 
+
+      outflows = spFilsO
+                  
+      form.addOutflowCondition(spFilsO)
+      return [form,outflows]
 
 
    def re_num(self, prompt):
