@@ -268,13 +268,15 @@ class Plot:
                meshX.append(vert[0]) #get the x value for the vertex
                meshY.append(vert[1])
                
-         #dummy color values for the plot as to be 0
-         colA = zeros((len(meshX)-1, len(meshY)-1))
+
 
          meshX = sorted(list(set(meshX))) #sort and remove duplicates 
          meshY = sorted(list(set(meshY))) #sort and remove duplicates
          meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
          meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
+         #dummy color values for the plot as to be 0
+         colA = zeros((len(meshY)-1,len(meshX)-1))
+         
          #make the actual mesh plot
          c = plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                            cmap='bwr', vmin='-100', vmax='100') 
