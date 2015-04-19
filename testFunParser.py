@@ -11,6 +11,17 @@ class testFunParser(unittest.TestCase):
         z = -3 * (yVar-1)*(yVar-2)
         self.assertAlmostEqual(z.evaluate(2,2), y.evaluate(2,2), delta=1e-12)
 
+    def testBasicRoberts(self):
+        mySolver = Solver(True)
+        f_actual = mySolver.functionParser("-3*(y-1)*(y-2)")
+        y = Function.yn(1)
+        f_expected = -3*(y-1)*(y-2)
+        testPoints = [[0,0],[0,1],[0,2],[1,3],[1,4],[1,5]]
+        for point in testPoints:
+          xVal = point[0]
+          yVal = point[1]
+          self.assertAlmostEqual(f_actual.evaluate(xVal,yVal), f_expected.evaluate(xVal,yVal), delta=1e-12)
+
     def testNestedParen(self):
         x = Solver(True)
         y = x.functionParser("4*((x+1)+(x*2))")
