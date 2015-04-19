@@ -20,20 +20,20 @@ class Plot:
       aCIDs = mesh.getActiveCellIDs()
       if selection == 'u1': #--------------------------------u1---------------------------------
          f = Function.solution(self.form.u(1), self.form.solution())
-         RobertsPlotter.plot(f,self.form.solution().mesh(),selection)
+         RobertsPlotter.plotFunction(f,self.form.solution().mesh(),selection)
       elif selection == 'u2': #--------------------------------u2---------------------------------
          f = Function.solution(self.form.u(2), self.form.solution())
-         RobertsPlotter.plot(f,self.form.solution().mesh(),selection)
+         RobertsPlotter.plotFunction(f,self.form.solution().mesh(),selection)
       elif selection == 'p': #--------------------------------p---------------------------------
          f = Function.solution(self.form.p(), self.form.solution())
-         RobertsPlotter.plot(f,self.form.solution().mesh(),selection)
+         RobertsPlotter.plotFunction(f,self.form.solution().mesh(),selection)
       elif selection == 'stream function': #--------------------------stream function-------------------------
          streamSoln = self.form.streamSolution()
          print "Solving for stream function..."
          streamSoln.solve()
          print "Plotting..."
          f = Function.solution(self.form.streamPhi(), streamSoln)
-         RobertsPlotter.plot(f,streamSoln.mesh(),selection)
+         RobertsPlotter.plotFunction(f,streamSoln.mesh(),selection)
          
 #       if selection == 'u1': #--------------------------------u1---------------------------------
 #          u1_soln = Function.solution(self.form.u(1), self.form.solution())
