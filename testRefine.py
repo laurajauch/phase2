@@ -21,13 +21,13 @@ class testRefine(unittest.TestCase):
         
         inflow1 = SpatialFilter.matchingX(2.0)
         inflow2 = SpatialFilter.greaterThanY(4.0)
-        inflowTot = inflow1 and inflow2
+        inflowTot = inflow1 & inflow2
         velocity = Function.vectorize(Function.constant(9), Function.xn(8))
         compForm.addInflowCondition(inflowTot, velocity)
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
         mesh = compForm.solution().mesh()
         numElems = mesh.numActiveElements()
         gdcount = mesh.numGlobalDofs()
@@ -51,13 +51,13 @@ class testRefine(unittest.TestCase):
         
         inflow1 = SpatialFilter.matchingX(2.0)
         inflow2 = SpatialFilter.greaterThanY(4.0)
-        inflowTot = inflow1 and inflow2
+        inflowTot = inflow1 & inflow2
         velocity = Function.vectorize(Function.constant(9), Function.xn(8))
         compForm.addInflowCondition(inflowTot, velocity)
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
         mesh = compForm.solution().mesh()
         numElems = mesh.numActiveElements()
         gdcount = mesh.numGlobalDofs()
@@ -86,13 +86,13 @@ class testRefine(unittest.TestCase):
         
         inflow1 = SpatialFilter.matchingX(2.0)
         inflow2 = SpatialFilter.greaterThanY(4.0)
-        inflowTot = inflow1 and inflow2
+        inflowTot = inflow1 & inflow2
         velocity = Function.vectorize(Function.constant(9), Function.xn(8))
         compForm.addInflowCondition(inflowTot, velocity)
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
         mesh = compForm.solution().mesh()
         numElems = mesh.numActiveElements()
         gdcount = mesh.numGlobalDofs()
@@ -115,13 +115,13 @@ class testRefine(unittest.TestCase):
         
         inflow1 = SpatialFilter.matchingX(2.0)
         inflow2 = SpatialFilter.greaterThanY(4.0)
-        inflowTot = inflow1 and inflow2
+        inflowTot = inflow1 & inflow2
         velocity = Function.vectorize(Function.constant(9), Function.xn(8))
         compForm.addInflowCondition(inflowTot, velocity)
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
         mesh = compForm.solution().mesh()
         numElems = mesh.numActiveElements()
         gdcount = mesh.numGlobalDofs()
@@ -168,7 +168,7 @@ class testRefine(unittest.TestCase):
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
 
         nonlinearSolve(maxSteps, compForm)
         Form.Instance().setForm(compForm)
@@ -193,7 +193,7 @@ class testRefine(unittest.TestCase):
         
         outflow1 = SpatialFilter.lessThanY(1.0)
         compForm.addOutflowCondition(outflow1)
-        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) or SpatialFilter.negatedFilter(outflow1))
+        compForm.addWallCondition(SpatialFilter.negatedFilter(inflowTot) | SpatialFilter.negatedFilter(outflow1))
 
         compForm.hRefine()
         nonlinearSolve(maxSteps, compForm)
