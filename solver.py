@@ -70,7 +70,7 @@ class Solver:
                if(i==0):
                   inflows = temp[1]
                else:
-                  inflow = inflows or temp[1]
+                  inflow = inflows | temp[1]
                i += 1
             check = False
          except ValueError:
@@ -92,13 +92,13 @@ class Solver:
                if i==0:
                   outflows = temp[1]
                else:
-                  outflows = outflows or temp[1]
+                  outflows = outflows | temp[1]
                i += 1
             check = False
          except ValueError:
             print("Input not understood, restarting sequence.")
 
-      form.addWallCondition(SpatialFilter.negatedFilter(inflows or outflows))
+      form.addWallCondition(SpatialFilter.negatedFilter(inflows | outflows))
 
       print "Solving..."
       
@@ -126,7 +126,7 @@ class Solver:
             while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
                form.solveAndAccumulate()
                normOfIncrement = form.L2NormSolutionIncrement()
-               #print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
+               print("L^2 norm of increment %i: %0.3f" % (stepNumber, normOfIncrement))
                stepNumber += 1
 
          maxSteps = 10
@@ -162,7 +162,7 @@ class Solver:
       spFils = self.getSF(inf[0])
       del inf[0] 
       for x in inf:
-         spFils = spFils and self.getSF(x)
+         spFils = spFils & self.getSF(x)
 
       inflows = spFils
 
@@ -185,7 +185,7 @@ class Solver:
       spFilsO = self.getSF(inf[0])
       del inf[0]
       for x in inf:
-         spFilsO = spFilsO and self.getSF(x) 
+         spFilsO = spFilsO & self.getSF(x) 
 
       outflows = spFilsO
                   
