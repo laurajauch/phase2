@@ -294,15 +294,30 @@ class Solver:
             elif fun[i] == "*" or fun[i] == "/" or fun[i] == "+" or fun[i] == "-":
                operators.append(fun[i])
             elif fun[i].isalpha():
+               # the following added by Dr. Roberts
+               if fun[i] == "x":
+                 isXFunction = True
+               elif fun[i] == "y":
+                 isXFunction = False # y Function
+               else:
+                 # note: should have something to catch exceptions in the caller
+                 print "Invalid input--got " + fun[i] + " when x or y expected."
+                 raise ValueError #only x and y supported right now
                if i+1 < len(fun) and fun[i+1] == "^":
                   i += 2
                   temp = ""
                   while (i < len(fun) and self.isNum(fun[i])):
                      temp+=fun[i]
                      i+=1
-                  comp.append(Function.xn(int(temp)))
+                  if isXFunction:
+                    comp.append(Function.xn(int(temp)))
+                  else:
+                    comp.append(Function.yn(int(temp)))
                else:
-                  comp.append(Function.xn(1))
+                  if isXFunction:
+                    comp.append(Function.xn(1))
+                  else:
+                    comp.append(Function.yn(1))
             elif self.isNum(fun[i]):
                temp = ""
                while i<len(fun) and (self.isNum(fun[i]) or fun[i] == "."):
